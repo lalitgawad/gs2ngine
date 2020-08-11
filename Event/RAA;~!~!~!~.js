@@ -1,0 +1,1 @@
+logDebug("RAA event fired!");

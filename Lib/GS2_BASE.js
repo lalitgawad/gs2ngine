@@ -1,0 +1,1 @@
+function loadScript(n){n=n.toUpperCase();var t=aa.proxyInvoker.newInstance("com.accela.aa.emse.emse.EMSEBusiness").getOutput(),i=t.getScriptByPK(aa.getServiceProviderCode(),n,"ADMIN");return i.getScriptText()+""}var idscript = 'CLOUD21';eval(loadScript("GS2_BOOT"));gs2.fireAction(idscript, 'v.1.00.0000');

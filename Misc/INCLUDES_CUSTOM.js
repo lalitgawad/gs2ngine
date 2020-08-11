@@ -1,0 +1,1 @@
+eval(getScriptText("GS2_BASE"));
