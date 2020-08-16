@@ -627,6 +627,52 @@ gs2.common = {};
             pamaremeters.put(key, value);
         }
     }
+    /**
+     * deactivates Task for Given Wf Task name and CapId
+     * @param {vCapId} capId
+     * @param {wfstr} WorkFlowName
+     * @param {wfstat} WorkFlow status
+     * @param {wfcomment} WorkFlow Comment
+     * @param {wfnote} WorkFlow Note
+     */
+    function closeWfTask(vCapId, wfstr, wfstat, wfcomment, wfnote) {
+        try {
+            var useProcess = false;
+            var processName = "";
+            if (arguments.length == 6) {
+                processName = arguments[5];
+                useProcess = true
+            }
+            var workflowResult = aa.workflow.getTaskItems(vCapId, wfstr, processName, null, null, null);
+            if (workflowResult.getSuccess()) {
+                var wfObj = workflowResult.getOutput()
+            } else {
+                logMessage("**ERROR: Failed to get workflow object: " + s_capResult.getErrorMessage());
+                return false
+            }
+            if (!wfstat) {
+                wfstat = "NA"
+            }
+            for (i in wfObj) {
+                var fTask = wfObj[i];
+                if (fTask.getTaskDescription().toUpperCase().equals(wfstr.toUpperCase()) && (!useProcess || fTask.getProcessCode().equals(processName))) {
+                    var dispositionDate = aa.date.getCurrentDate();
+                    var stepnumber = fTask.getStepNumber();
+                    var processID = fTask.getProcessID();
+                    if (useProcess) {
+                        aa.workflow.handleDisposition(vCapId, stepnumber, processID, wfstat, dispositionDate, wfnote, wfcomment, systemUserObj, "Y")
+                    } else {
+                        aa.workflow.handleDisposition(vCapId, stepnumber, wfstat, dispositionDate, wfnote, wfcomment, systemUserObj, "Y")
+                    }
+                    logMessage("Closing Workflow Task: " + wfstr + " with status " + wfstat);
+                    logDebug("Closing Workflow Task: " + wfstr + " with status " + wfstat)
+                }
+            }
+        }
+        catch (err) {
+            logDebug("A JavaScript Error occurred: deActivateWfTask: " + err.message);
+        }
+    }
 
     gs2.common.test = test;
     gs2.test = test;
@@ -674,6 +720,7 @@ gs2.common = {};
     gs2.common.existsCustom1 = existsCustom1;
     gs2.common.findInArray = findInArray;
     gs2.common.addParameter = addParameter;
+    gs2.common.closeWfTask = closeWfTask;
 
 })();
 
