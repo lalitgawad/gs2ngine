@@ -5,6 +5,18 @@ gs2.rec = {};
         gs2.log('GS2_RECORD Looks good');
         return true;
     }
+    function updateAppStatus(stat, cmt) {
+        var itemCap = capId;
+        if (arguments.length == 3) {
+            itemCap = arguments[2]
+        }
+        var updateStatusResult = aa.cap.updateAppStatus(itemCap, "APPLICATION", stat, sysDate, cmt, systemUserObj);
+        if (updateStatusResult.getSuccess()) {
+            logDebug("Updated application status to " + stat + " successfully.")
+        } else {
+            logDebug("**ERROR: application status update to " + stat + " was unsuccessful.  The reason is " + updateStatusResult.getErrorType() + ":" + updateStatusResult.getErrorMessage())
+        }
+    }
 
     function validateOnlyOneContact(ipContactTypes) {
         var opResult = true;
@@ -2063,7 +2075,7 @@ gs2.rec = {};
     gs2.rec.copyAllTablesFromParentForACA = copyAllTablesFromParentForACA;
     gs2.rec.isParent = isParent;
     gs2.rec.validateOnlyOneContact = validateOnlyOneContact;
-    
+    gs2.rec.updateAppStatus = updateAppStatus;
 
 })();
 
