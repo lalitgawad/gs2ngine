@@ -22,7 +22,7 @@
 function APP_OBJ(identity, caller) {
     gCaller = caller;
 
-    this.ObjId = "APP:Licenses/My/Base/Application";
+    this.ObjId = "APP:Licenses/Demo/Base/Application";
     this.Id = identity;
     this.Caller = caller;
     this.publicUser = false;
@@ -82,6 +82,7 @@ function APP_OBJ(identity, caller) {
         this.RecordType = appTypeString + "";
         this.CapId = capId;
         this.initGlobalObjects();
+        logDebug("INIT BASE");
     }
     
 	//Initialize
@@ -172,8 +173,7 @@ function APP_OBJ(identity, caller) {
 
     this.GUADelegator = function()
     {
-        logDebug("All checked boxes: "+ this.getAllChecked());
-        this.addInspectionResult(this.getAllChecked());
+
     }
     /**
      * Performs Payment Received from Cashier After actions for Applciation Record Type
@@ -200,10 +200,8 @@ function APP_OBJ(identity, caller) {
      */
     this.AsaDelegator = function () {
         if (!publicUser) {
+            gs2.common.closeWfTask(capId, "Application Intake", "Intake Complete", "Intake Complete", "");
         }
-        if(publicUser){
-        }
-
     }
 
     this.AsiuaDelegator = function () {
@@ -219,18 +217,11 @@ function APP_OBJ(identity, caller) {
      * CTRCA Delegator to call local function(s) for record specific after logic
      */
     this.CtrcaDelegator = function () {
-        this.appSubmissionActions();
-
+        gs2.common.closeWfTask(capId, "Application Intake", "Intake Complete", "Intake Complete", "");
     }
 
     this.ISHBDelegator = function () {
-        var errorMessageVal = "";
-        errorMessageVal += ISBValidations();
-        if (errorMessageVal != "") {
-            cancel = true;
-            showMessage = true;
-            comment(errorMessageVal);
-        }
+
     }
     this.ISADelegator = function()
     {
@@ -252,13 +243,30 @@ function APP_OBJ(identity, caller) {
         
     }
     this.IRSADelegator = function () {
+        if(inspResult == "Compliant - Finalized")
+        {
+            gs2.common.closeWfTask(capId, "Inspection", "Compliant", inspComment , "");
+            gs2.rec.updateAppStatus("Compliant - Finalized","");
 
+        }
+        else if(inspResult == "Non - Compliant")
+        {
+            gs2.common.closeWfTask(capId, "Inspection", "Non - Compliant", inspComment , "");
+            gs2.rec.updateAppStatus("Non - Compliant","");
+        }
     }
     this.IRMADelegator = function () {
 
     }
 
     this.AsiubDelegator = function (){
+
+    }
+    /**
+     * Workflow task update before Delegator to call local function(s) for record specific before logic
+     */
+    this.WtubDelegator = function ()
+    {
 
     }
 
@@ -279,12 +287,26 @@ function APP_OBJ(identity, caller) {
     /**
      * Workflow task update after Delegator to call local function(s) for record specific after logic
      */
-    this.WtuaDelegator = function () {
-
+    this.WtuaDelegator = function ()
+    {
+        if(wfTask == "Application Review" && wfStatus == "Application Approved - Inspection Needed")
+        {
+            gs2.insp.createPendingInspection("INSP_CI", "Compliance Inspection");
+            //gs2.common.closeWfTask(capId, "Inspection", "Inspection Scheduled", "Compliance Inspection Scheduled", "");
+            updateTask("Inspection","Inspection Scheduled", "Compliance Inspection Scheduled", "");
+        }
+        else if(wfTask == "Supervisory Review" && wfStatus == "Corrective Action issued")
+        {
+            var pocCapId = gs2.rec.createChild("Licenses","Plan of Correction","NA","NA");
+            gs2.rec.updateAppStatus("In Progress","", pocCapId);
+            editAppName("",pocCapId);
+            var pocItemsArr = this.getPOCItems();
+            addASITable("DIFICIENCY LISTING", pocItemsArr, pocCapId);
+        }
     }
 
     /**
-     * validatePage 
+     * validatePage
      */
     this.validatePage = function (controlString) {
         var pbValid = true;
@@ -295,12 +317,6 @@ function APP_OBJ(identity, caller) {
         return pbValid;
     }
 
-    /**
-     * Workflow task update before Delegator to call local function(s) for record specific before logic
-     */
-    this.WtubDelegator = function () {
-
-    }
     
 	this.pageflowDelegator = function (pfName) {
         var hidepage = true;
@@ -317,5 +333,33 @@ function APP_OBJ(identity, caller) {
             aa.env.setValue("ReturnData", "{'PageFlow': {'HidePage' : 'Y'}}");
         }
     }
-
+    this.getPOCItems = function ()
+    {
+        var vArr = new Array();
+        var inspResultObj = aa.inspection.getInspections(capId);
+        if (inspResultObj.getSuccess()) {
+            var inspList = inspResultObj.getOutput();
+            for (xx in inspList) {
+                if (inspList[xx].getInspectionStatus() == "Non - Compliant" && inspList[xx].getInspectionType() == "Compliance Inspection" ) {
+                    var inspId = inspList[xx].getIdNumber();
+                    var vGuideSheet = getGuideSheetObjects(inspId)[0];
+                    var CInfo = new Array();
+                    vGuideSheet.loadInfo();
+                    CInfo = vGuideSheet.info;
+                    for(var i in CInfo)
+                    {
+                        var vRow = new Array();
+                        if(CInfo[i] == "CHECKED")
+                        {
+                            vRow["Observiation / Citation #"] = new asiTableValObj("Observiation / Citation #",vGuideSheet.text+"", "Y");
+                            vRow["Comments"] = new asiTableValObj("Comments",""+i, "Y");
+                            vRow["Plan of Correction"] = new asiTableValObj("Plan of Correction","", "N");
+                            vArr.push(vRow);
+                        }
+                    }
+                }
+            }
+        }
+        return vArr;
+    }
 }
