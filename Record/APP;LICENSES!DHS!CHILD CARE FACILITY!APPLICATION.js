@@ -86,6 +86,24 @@ function APP_OBJ(identity, caller) {
     
 	//Initialize
     this.Init();
+    /**
+     * To get object in readable form to identify properties and methods
+     * The method / properties are initiliza from base
+     * @param {object} object
+     */
+    this.initFrombase =  function (object) {
+        var output = '';
+        for (property in object) {
+            //logDebug('this.' + property + ' =  object.' + property + ';');
+            eval('this.' + property + ' =  object.' + property + ';');
+        }
+    }
+
+    //Base - base function can be override
+    var baseScriptName = "APP:Licenses/Demo/Base/Application";
+    eval(getScriptText(baseScriptName));
+    var base = new APP_OBJ(baseScriptName, caller, this.ObjId);
+    this.initFrombase(base);
 
     /**
      * Get Application Document validation Requirement
@@ -170,11 +188,6 @@ function APP_OBJ(identity, caller) {
         }
     }
 
-    this.GUADelegator = function()
-    {
-        logDebug("All checked boxes: "+ this.getAllChecked());
-        this.addInspectionResult(this.getAllChecked());
-    }
     /**
      * Performs Payment Received from Cashier After actions for Applciation Record Type
      */
@@ -199,74 +212,70 @@ function APP_OBJ(identity, caller) {
      * ASA Delegator to call local function(s) for record specific after logic
      */
     this.AsaDelegator = function () {
-        if (!publicUser) {
-        }
-        if(publicUser){
-        }
-
+        base.AsaDelegator();
     }
 
     this.AsiuaDelegator = function () {
-
+        base.AsiuaDelegator();
     }
 
-    
     this.AsbDelegator = function () {
-
+        base.AsbDelegator();
     }
 
     /**
      * CTRCA Delegator to call local function(s) for record specific after logic
      */
     this.CtrcaDelegator = function () {
-        this.appSubmissionActions();
+        base.CtrcaDelegator();
 
     }
 
     this.ISHBDelegator = function () {
-        var errorMessageVal = "";
-        errorMessageVal += ISBValidations();
-        if (errorMessageVal != "") {
-            cancel = true;
-            showMessage = true;
-            comment(errorMessageVal);
-        }
+        base.ISHBDelegator();
     }
     this.ISADelegator = function()
     {
-        
+        base.ISADelegator();
     }
     /**
      * IRSB Delegator to call local function(s) for record specific after logic
      */
     this.IRSBDelegator = function () {
-        
+        base.IRSBDelegator();
     }
     /**
      * IRMB Delegator to call local function(s) for record specific after logic
      */
     this.IRMBDelegator = function () {
-        
+        base.IRMBDelegator();
     }
     this.ISHADelegator = function () {
-        
+        base.ISHADelegator();
     }
     this.IRSADelegator = function () {
-
+        base.IRSADelegator();
     }
     this.IRMADelegator = function () {
-
+        base.IRMADelegator();
     }
 
     this.AsiubDelegator = function (){
-
+        base.AsiubDelegator();
+    }
+    this.GUADelegator = function()
+    {
+        base.GUADelegator()
+    }
+    this.WtuaDelegator = function () {
+        base.WtuaDelegator();
     }
 
    /**
      * ASA Async Delegator to call local function(s) for record specific after logic
      */
     this.AsaAsyncDelegator = function () {
-
+        base.AsaAsyncDelegator();
     }
 
     /**
@@ -276,12 +285,6 @@ function APP_OBJ(identity, caller) {
 
     }
 
-    /**
-     * Workflow task update after Delegator to call local function(s) for record specific after logic
-     */
-    this.WtuaDelegator = function () {
-
-    }
 
     /**
      * validatePage 
