@@ -280,7 +280,20 @@ function APP_OBJ(identity, caller) {
      * Workflow task update after Delegator to call local function(s) for record specific after logic
      */
     this.WtuaDelegator = function () {
-
+        if(wfTask == "Correction Review" && wfStatus == "Implementation Complete")
+        {
+            this.resultNonCompliantInspection();
+            var pCapId = getParent();
+            var capResult = aa.cap.getCap(pCapId);
+            var cap = capResult.getOutput();
+            var vAppTypeResult = cap.getCapType(); //create CapTypeModel object
+            var vAppTypeString = vAppTypeResult.toString().split("/");
+            gs2.common.closeWfTask(pCapId, "Supervisory Review", "Review Complete", "Review Complete", "");
+            gs2.common.closeWfTask(pCapId, "Application Issuance", "Application Issued - Issue Permit", "Application Issued - Issue Permit", "");
+            var licCapId = gs2.rec.createParent(vAppTypeString[0],vAppTypeString[1],vAppTypeString[2],"License", pCapId);
+            gs2.rec.updateAppStatus("Active","", licCapId);
+            editAppName("",licCapId);
+        }
     }
 
     /**
@@ -301,7 +314,21 @@ function APP_OBJ(identity, caller) {
     this.WtubDelegator = function () {
 
     }
-    
+    this.resultNonCompliantInspection = function()
+    {
+        var vCapID = getParent();
+        var inspResultObj = aa.inspection.getInspections(vCapID);
+        if (inspResultObj.getSuccess()) {
+            var inspList = inspResultObj.getOutput();
+            for (xx in inspList) {
+                if (inspList[xx].getInspectionStatus() == "Non - Compliant" && inspList[xx].getInspectionType() == "Compliance Inspection" )
+                {
+                    var inspId = inspList[xx].getIdNumber();
+                    aa.inspection.resultInspection(vCapID, inspId, "Compliant - Finalized",aa.date.getCurrentDate(), "Compliant - Finalized", "A");
+                }
+            }
+        }
+    }
 	this.pageflowDelegator = function (pfName) {
         var hidepage = true;
 

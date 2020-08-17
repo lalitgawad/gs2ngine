@@ -134,7 +134,26 @@ function APP_OBJ(identity, caller) {
      * Document upload after Delegator to call local function(s) for record specific before logic
      */
     this.DuaDelegator = function() {
+        if(doesStatusExistInTaskHistory("Application Review", "Application Approved - Inspection Needed"))
+        {
+            gs2.wf.activateTask(capId, "Inspection");
+            gs2.common.closeWfTask(capId, "Inspection", "Additional Information Received", "Additional Information Received", "");
+        }
+        else
+        {
+            gs2.wf.activateTask(capId, "Application Review");
+            gs2.common.closeWfTask(capId, "Application Review", "Additional Information Received", "Additional Information Received", "");
+        }
+        editCapConditionStatus("Addtional Information Required","Additional Information Required","Condition Met","Not Applied")
+        /*var vDocumentModelArray = aa.env.getValue("DocumentModelList");
+        if (vDocumentModelArray.size() > 0) {
+            for (var index = 0; index < vDocumentModelArray.size(); index++) {
+                var docName = String(vDocumentModelArray.get(index).getDocCategory());
+                if (docName == "Engineer Letter - Foundation") {
 
+                }
+            }
+        }*/
     }
 
     this.activatePostPermitOnDocUpload = function(){
@@ -297,22 +316,24 @@ function APP_OBJ(identity, caller) {
         {
             gs2.insp.createPendingInspection("INSP_CI", "Compliance Inspection");
             //gs2.common.closeWfTask(capId, "Inspection", "Inspection Scheduled", "Compliance Inspection Scheduled", "");
-            updateTask("Inspection","Inspection Scheduled", "Compliance Inspection Scheduled", "");
+            //updateTask("Inspection","Inspection Scheduled", "Compliance Inspection Scheduled", "");
+            //moveWFTask("Inspection","Inspection Scheduled", "Compliance Inspection Scheduled", "");
         }
         else if(wfTask == "Supervisory Review" && wfStatus == "Corrective Action issued")
         {
             var pocCapId = gs2.rec.createChild("Licenses","Plan of Correction","NA","NA");
-            gs2.rec.updateAppStatus("In Progress","", pocCapId);
+            gs2.rec.updateAppStatus("Awaiting Provider Response","", pocCapId);
             editAppName("",pocCapId);
             var pocItemsArr = this.getPOCItems();
             addASITable("DIFICIENCY LISTING", pocItemsArr, pocCapId);
             gs2.wf.deActivateWfTask(capId, "Supervisory Review");
+            gs2.wf.deActivateWfTask(capId, "Application Issuance");
         }
         else if(wfTask == "Supervisory Review" && wfStatus == "Review Complete")
         {
             var licCapId = gs2.rec.createParent(appTypeArray[0],appTypeArray[1],appTypeArray[2],"License");
             gs2.rec.updateAppStatus("Active","", licCapId);
-            editAppName("",pocCapId);
+            editAppName("",licCapId);
         }
         else if(wfTask == "Application Review" && wfStatus == "Additional Information Required")
         {
@@ -323,7 +344,7 @@ function APP_OBJ(identity, caller) {
         else if(wfTask == "Application Review" && wfStatus == "Additional Information Received")
         {
             gs2.wf.activateTask(capId, "Application Review");
-            editCapConditionStatus("Additional Information Required","Additional Information Required","Condition Met","Not Applied")
+            editCapConditionStatus("Addtional Information Required","Additional Information Required","Condition Met","Not Applied")
         }
     }
 
@@ -485,4 +506,23 @@ function addSTDConditionX(cType, cDesc, vCapID) {
             }
         }
     }
+}
+function doesStatusExistInTaskHistory(tName, tStatus) {
+
+    histResult = aa.workflow.getWorkflowHistory(capId, tName, null);
+    if (histResult.getSuccess()) {
+        var taskHistArr = histResult.getOutput();
+        for (var xx in taskHistArr) {
+            taskHist = taskHistArr[xx];
+            if (tStatus.equals(taskHist.getDisposition()))
+                return true;
+        }
+        return false;
+
+    }
+    else {
+        logDebug("Error getting task history : " + histResult.getErrorMessage());
+    }
+    return false;
+
 }
