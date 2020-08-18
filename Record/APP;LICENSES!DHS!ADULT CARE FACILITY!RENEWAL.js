@@ -133,7 +133,7 @@ function APP_OBJ(identity, caller) {
      * Document upload after Delegator to call local function(s) for record specific before logic
      */
     this.DuaDelegator = function() {
-
+        base.DuaDelegator();
     }
 
     this.activatePostPermitOnDocUpload = function(){

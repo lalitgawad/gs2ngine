@@ -135,6 +135,7 @@ function APP_OBJ(identity, caller) {
     this.DuaDelegator = function() {
         gs2.wf.activateTask(capId, "Corrective Review");
         gs2.common.closeWfTask(capId, "Corrective Review", "Additional Information Received", "Additional Information Received", "");
+        aa.workflow.adjustTask(capId, "Corrective Review", "Y", "N", null, null);
         //editCapConditionStatus("Addtional Information Required","Additional Information Required","Condition Met","Not Applied");
     }
 
@@ -287,13 +288,14 @@ function APP_OBJ(identity, caller) {
             this.resultNonCompliantInspection();
             var pCapId = getParent();
             gs2.wf.activateTask(pCapId, "Supervisory Review");
+            aa.workflow.adjustTask(capId, "Supervisory Review", "Y", "N", null, null);
             copyASITable(capId, pCapId, "DIFICIENCY LISTING");
         }
         else if(wfTask == "Correction Review" && wfStatus == "Additional Information Required")
         {
             gs2.wf.deActivateWfTask(capId, "Correction Review");
             //gs2.rec.addStdConditionWithComments("Licensing", "Addtional Information Required", "Additional Information Required","Additional Information Required" , wfComment , null);
-            addSTDConditionX("Addtional Information Required", "Additional Information Required", capId);
+            //addSTDConditionX("Addtional Information Required", "Additional Information Required", capId);
         }
     }
 

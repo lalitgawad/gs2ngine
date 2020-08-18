@@ -136,15 +136,20 @@ function APP_OBJ(identity, caller) {
     this.DuaDelegator = function() {
         if(doesStatusExistInTaskHistory("Application Review", "Application Approved - Inspection Needed"))
         {
-            gs2.wf.activateTask(capId, "Inspection");
             gs2.common.closeWfTask(capId, "Inspection", "Additional Information Received", "Additional Information Received", "");
+            gs2.wf.activateTask(capId, "Inspection");
+            aa.workflow.adjustTask(capId, "Inspection", "Y", "N", null, null);
+            aa.workflow.adjustTask(capId, "Supervisory Review", "N", "N", null, null);
         }
         else
         {
-            gs2.wf.activateTask(capId, "Application Review");
             gs2.common.closeWfTask(capId, "Application Review", "Additional Information Received", "Additional Information Received", "");
+            gs2.wf.activateTask(capId, "Application Review");
+            aa.workflow.adjustTask(capId, "Application Review", "Y", "N", null, null);
+            aa.workflow.adjustTask(capId, "Supervisory Review", "N", "N", null, null);
+            aa.workflow.adjustTask(capId, "Inspection", "N", "N", null, null);
         }
-        editCapConditionStatus("Addtional Information Required","Additional Information Required","Condition Met","Not Applied")
+        editCapConditionStatusX("Addtional Information Required","Additional Information Required","Condition Met","Not Applied")
         /*var vDocumentModelArray = aa.env.getValue("DocumentModelList");
         if (vDocumentModelArray.size() > 0) {
             for (var index = 0; index < vDocumentModelArray.size(); index++) {
@@ -196,6 +201,8 @@ function APP_OBJ(identity, caller) {
     this.ISADelegator = function()
     {
         gs2.common.closeWfTask(capId, "Inspection", "Inspection Scheduled", "Compliance Inspection Scheduled", "");
+        aa.workflow.adjustTask(capId, "Inspection", "Y", "N", null, null);
+        aa.workflow.adjustTask(capId, "Supervisory Review", "N", "N", null, null);
     }
     /**
      * IRSB Delegator to call local function(s) for record specific after logic
@@ -287,7 +294,7 @@ function APP_OBJ(identity, caller) {
             gs2.wf.deActivateWfTask(capId, "Supervisory Review");
             gs2.wf.deActivateWfTask(capId, "Application Issuance");
         }
-        else if(wfTask == "Supervisory Review" && wfStatus == "Review Complete")
+        else if(wfTask == "Application Issuance" && wfStatus == "Application Approved - Issue Permit")
         {
             var licCapId = gs2.rec.createParent(appTypeArray[0],appTypeArray[1],appTypeArray[2],"License");
             gs2.rec.updateAppStatus("Active","", licCapId);
@@ -299,11 +306,11 @@ function APP_OBJ(identity, caller) {
             //gs2.rec.addStdConditionWithComments("Licensing", "Addtional Information Required", "Additional Information Required","Additional Information Required" , wfComment , null);
             addSTDConditionX("Addtional Information Required", "Additional Information Required", capId);
         }
-        /*else if(wfTask == "Application Review" && wfStatus == "Additional Information Received")
+        else if(wfTask == "Inspection" && wfStatus == "Request Additional Information")
         {
-            gs2.wf.activateTask(capId, "Application Review");
-            editCapConditionStatus("Addtional Information Required","Additional Information Required","Condition Met","Not Applied")
-        }*/
+            gs2.wf.deActivateWfTask(capId, "Inspection");
+            addSTDConditionX("Addtional Information Required", "Additional Information Required", capId);
+        }
     }
 
     /**
@@ -418,4 +425,38 @@ function addApplicantToCap4ACA() {
 
     addApplicant = aa.people.createCapContactWithRefPeopleModel(capId, getPerson);
 
+}
+function editCapConditionStatusX(pType, pDesc, pStatus, pStatusType) {
+    if (pType == null) {
+        var condResult = aa.capCondition.getCapConditions(capId)
+    } else {
+        var condResult = aa.capCondition.getCapConditions(capId, pType)
+    }
+    if (condResult.getSuccess()) {
+        var capConds = condResult.getOutput()
+    } else {
+        logMessage("**ERROR: getting cap conditions: " + condResult.getErrorMessage());
+        aa.print("**ERROR: getting cap conditions: " + condResult.getErrorMessage());
+        return false
+    }
+    for (cc in capConds) {
+        var thisCond = capConds[cc];
+        var cStatus = thisCond.getConditionStatus();
+        var cStatusType = thisCond.getConditionStatusType();
+        var cDesc = thisCond.getConditionDescription();
+        var cImpact = thisCond.getImpactCode();
+        logDebug(cStatus + ": " + cStatusType);
+        if (cDesc.toUpperCase() == pDesc.toUpperCase()) {
+            if (!pStatus.toUpperCase().equals(cStatus.toUpperCase())) {
+                thisCond.setConditionStatus(pStatus);
+                thisCond.setConditionStatusType(pStatusType);
+                thisCond.setImpactCode("");
+                aa.capCondition.editCapCondition(thisCond);
+            } else {
+                aa.print("ERROR: condition found but already in the status of pStatus and pStatusType");
+            }
+        }
+    }
+    aa.print("ERROR: no matching condition found");
+    return false
 }
