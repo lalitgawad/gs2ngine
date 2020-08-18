@@ -156,64 +156,10 @@ function APP_OBJ(identity, caller) {
         }*/
     }
 
-    this.activatePostPermitOnDocUpload = function(){
-        try {
-            var vDocumentModelArray = aa.env.getValue("DocumentModelList");
-            var docupload = false;
-            if (vDocumentModelArray.size() > 0) {
-                for (var index = 0; index < vDocumentModelArray.size(); index++) {
-                    var docName = String(vDocumentModelArray.get(index).getDocCategory());
-                    if (matches(docName, "Construction Plan", "Floor Plan Existing", "Monument Engineered Plan", "Site Plan", "Traffic Plan", "Tree Preservation Plan")){
-                        docupload = true;
-                    }
-                }
-            }
-            if (docupload) {
-                if(isTaskActive("Permit Issued") && isTaskStatus("Permit Issued", "Issued")){
-                    closeTask("Permit Issued", "Post Permit Review Required", "Closed via script", "Closed via script");
-                    activateTask("Post Permit Completeness Review");
-                    updateTask("Post Permit Completeness Review", "Under Review", "Updated by Script", "");
-                    var vDaysDue = this.getDurationDays();;
-                    var updatedDueDate = dateAdd(aa.date.getCurrentDate(), vDaysDue);
-                    var calID = isBusinessCalAssociated("Post Permit Completeness Review", capId);
-                    if (calID != -1) {
-                        updatedDueDate = addBusinessDays(aa.date.getCurrentDate(), vDaysDue, calID);
-                    }
-                    editTaskDueDate("Post Permit Completeness Review", updatedDueDate);
-                    //REVISIT
-                    autoAssign("Post Permit Completeness Review", "COSA/DSD/BLD/PR/NA/ADMIN/NA");
-                    aa.workflow.adjustTask(capId, "Closure", "N", "N", null, null);
-                }
-            }
-        } catch (err) {
-            logDebug("A JavaScript Error occurred: DuaDelegator: " + err.message);
-        }
-    }
-
     this.GUADelegator = function()
     {
 
     }
-    /**
-     * Performs Payment Received from Cashier After actions for Applciation Record Type
-     */
-    this.CashierPaymentAfter = function(_cashierObj) {
-        this.praDelegator();
-    }
-
-    /**
-     * Apply Application Fees For ASIUA
-     */
-    this.ApplyAppASIUAFees = function () {
-
-    }
-
-
-    /** Workflow **/
-    this.AutoAssignUser = function () {
-
-    }
-
     /**
      * ASA Delegator to call local function(s) for record specific after logic
      */
@@ -319,7 +265,7 @@ function APP_OBJ(identity, caller) {
             //updateTask("Inspection","Inspection Scheduled", "Compliance Inspection Scheduled", "");
             //moveWFTask("Inspection","Inspection Scheduled", "Compliance Inspection Scheduled", "");
         }
-        else if(wfTask == "Supervisory Review" && wfStatus == "Corrective Action issued")
+        else if(wfTask == "Supervisory Review" && wfStatus == "Deficiency Report Issued")
         {
             var pocCapId = gs2.rec.createChild("Licenses","Plan of Correction","NA","NA");
             gs2.rec.updateAppStatus("Awaiting Provider Response","", pocCapId);
@@ -341,11 +287,11 @@ function APP_OBJ(identity, caller) {
             //gs2.rec.addStdConditionWithComments("Licensing", "Addtional Information Required", "Additional Information Required","Additional Information Required" , wfComment , null);
             addSTDConditionX("Addtional Information Required", "Additional Information Required", capId);
         }
-        else if(wfTask == "Application Review" && wfStatus == "Additional Information Received")
+        /*else if(wfTask == "Application Review" && wfStatus == "Additional Information Received")
         {
             gs2.wf.activateTask(capId, "Application Review");
             editCapConditionStatus("Addtional Information Required","Additional Information Required","Condition Met","Not Applied")
-        }
+        }*/
     }
 
     /**

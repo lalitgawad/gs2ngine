@@ -133,7 +133,9 @@ function APP_OBJ(identity, caller) {
      * Document upload after Delegator to call local function(s) for record specific before logic
      */
     this.DuaDelegator = function() {
-
+        gs2.wf.activateTask(capId, "Corrective Review");
+        gs2.common.closeWfTask(capId, "Corrective Review", "Additional Information Received", "Additional Information Received", "");
+        //editCapConditionStatus("Addtional Information Required","Additional Information Required","Condition Met","Not Applied");
     }
 
     this.activatePostPermitOnDocUpload = function(){
@@ -284,15 +286,14 @@ function APP_OBJ(identity, caller) {
         {
             this.resultNonCompliantInspection();
             var pCapId = getParent();
-            var capResult = aa.cap.getCap(pCapId);
-            var cap = capResult.getOutput();
-            var vAppTypeResult = cap.getCapType(); //create CapTypeModel object
-            var vAppTypeString = vAppTypeResult.toString().split("/");
-            gs2.common.closeWfTask(pCapId, "Supervisory Review", "Review Complete", "Review Complete", "");
-            gs2.common.closeWfTask(pCapId, "Application Issuance", "Application Issued - Issue Permit", "Application Issued - Issue Permit", "");
-            var licCapId = gs2.rec.createParent(vAppTypeString[0],vAppTypeString[1],vAppTypeString[2],"License", pCapId);
-            gs2.rec.updateAppStatus("Active","", licCapId);
-            editAppName("",licCapId);
+            gs2.wf.activateTask(pCapId, "Supervisory Review");
+            copyASITable(capId, pCapId, "DIFICIENCY LISTING");
+        }
+        else if(wfTask == "Correction Review" && wfStatus == "Additional Information Required")
+        {
+            gs2.wf.deActivateWfTask(capId, "Correction Review");
+            //gs2.rec.addStdConditionWithComments("Licensing", "Addtional Information Required", "Additional Information Required","Additional Information Required" , wfComment , null);
+            addSTDConditionX("Addtional Information Required", "Additional Information Required", capId);
         }
     }
 
@@ -345,4 +346,59 @@ function APP_OBJ(identity, caller) {
         }
     }
 
+}
+function copyASITable(pFromCapId, pToCapId, tableName) {
+    var itemCap = pFromCapId;
+
+    var gm = aa.appSpecificTableScript.getAppSpecificTableGroupModel(itemCap).getOutput();
+    var ta = gm.getTablesArray()
+    var tai = ta.iterator();
+    var tableArr = new Array();
+    var ignoreArr = new Array();
+
+    while (tai.hasNext()) {
+        var tsm = tai.next();
+
+        var tempObject = new Array();
+        var tempArray = new Array();
+        var tn = tsm.getTableName() + "";
+        var numrows = 0;
+
+        if (tn != tableName)
+            continue;
+
+        if (!tsm.rowIndex.isEmpty()) {
+            var tsmfldi = tsm.getTableField().iterator();
+            var tsmcoli = tsm.getColumns().iterator();
+            var readOnlyi = tsm.getAppSpecificTableModel().getReadonlyField().iterator(); // get Readonly filed
+            var numrows = 1;
+
+            while (tsmfldi.hasNext()) // cycle through fields
+            {
+                if (!tsmcoli.hasNext()) // cycle through columns
+                {
+                    var tsmcoli = tsm.getColumns().iterator();
+                    tempArray.push(tempObject); // end of record
+                    var tempObject = new Array(); // clear the temp obj
+                    numrows++;
+                }
+                var tcol = tsmcoli.next();
+                var tval = tsmfldi.next();
+
+                var readOnly = 'N';
+                if (readOnlyi.hasNext()) {
+                    readOnly = readOnlyi.next();
+                }
+
+                var fieldInfo = new asiTableValObj(tcol.getColumnName(), tval ? tval : "", readOnly);
+                tempObject[tcol.getColumnName()] = fieldInfo;
+                //tempObject[tcol.getColumnName()] = tval;
+            }
+
+            tempArray.push(tempObject); // end of record
+        }
+
+        addASITable(tn, tempArray, pToCapId);
+        logDebug("ASI Table Array : " + tn + " (" + numrows + " Rows)");
+    }
 }
