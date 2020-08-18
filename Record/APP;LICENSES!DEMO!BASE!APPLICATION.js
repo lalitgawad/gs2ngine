@@ -187,6 +187,7 @@ function APP_OBJ(identity, caller) {
             gs2.common.closeWfTask(capId, "Application Intake", "Payment Complete", "Payment Complete", "");
             gs2.common.closeWfTask(capId, "Application Intake", "Intake Complete", "Intake Complete", "");
         }
+        addApplicantToCap4ACA();
     }
 
     this.ISHBDelegator = function () {
@@ -194,7 +195,7 @@ function APP_OBJ(identity, caller) {
     }
     this.ISADelegator = function()
     {
-
+        gs2.common.closeWfTask(capId, "Inspection", "Inspection Scheduled", "Compliance Inspection Scheduled", "");
     }
     /**
      * IRSB Delegator to call local function(s) for record specific after logic
@@ -224,8 +225,19 @@ function APP_OBJ(identity, caller) {
             gs2.rec.updateAppStatus("Non - Compliant","");
         }
     }
-    this.IRMADelegator = function () {
+    this.IRMADelegator = function ()
+    {
+        if(inspResult == "Compliant - Finalized")
+        {
+            gs2.common.closeWfTask(capId, "Inspection", "Compliant", inspComment , "");
+            gs2.rec.updateAppStatus("Compliant - Finalized","");
 
+        }
+        else if(inspResult == "Non - Compliant")
+        {
+            gs2.common.closeWfTask(capId, "Inspection", "Non - Compliant", inspComment , "");
+            gs2.rec.updateAppStatus("Non - Compliant","");
+        }
     }
 
     this.AsiubDelegator = function (){
@@ -352,82 +364,6 @@ function APP_OBJ(identity, caller) {
         return vArr;
     }
 }
-function moveWFTask(ipTask, ipStatus, ipComment, ipNote) // Optional CapID, Process, StatusDate
-{
-    var vCapId = capId;
-    if (arguments.length > 4 && arguments[4] != null) {
-        var vCapId = arguments[4];
-    }
-
-    if (ipTask == "")
-        ipTask = getCurrentTask(vCapId).getTaskDescription();
-
-    var vUseProcess = false;
-    var vProcessName = "";
-    if (arguments.length > 5 && arguments[5] != null && arguments[5] != "") {
-        vProcessName = arguments[5]; // subprocess
-        vUseProcess = true;
-    }
-
-    var vUseStatusDate = false;
-    var vStatusDate = null;
-    var vToday = new Date();
-    if (arguments.length > 6 && arguments[6] != null && arguments[6] != "") {
-        vStatusDate = new Date(arguments[6]);
-        vUseStatusDate = true;
-    }
-
-    var vWFResult = aa.workflow.getTaskItems(vCapId, ipTask, vProcessName, null, null, null);
-    if (vWFResult.getSuccess())
-        var vWFObj = vWFResult.getOutput();
-    else {
-        logMessage("**ERROR: Failed to get workflow object: " + vWFResult.getErrorMessage());
-        return false;
-    }
-
-    if (!ipStatus)
-        ipStatus = "NA";
-
-    if (vWFObj.length == 0)
-        return false;
-
-    var vMoved = false;
-    for (var vCounter in vWFObj) {
-        var vTaskObj = vWFObj[vCounter];
-        if (vTaskObj.getTaskDescription().toUpperCase().equals(ipTask.toUpperCase()) && (!vUseProcess || vTaskObj.getProcessCode().equals(vProcessName))) {
-            var vTaskStatusObj = aa.workflow.getTaskStatus(vTaskObj, ipStatus).getOutput();
-            if (!vTaskStatusObj)
-                continue;
-            if (vUseStatusDate) {
-                var vTaskModel = vTaskObj.getTaskItem();
-                vTaskModel.setStatusDate(vStatusDate);
-                vTaskModel.setDisposition(ipStatus);
-                vTaskModel.setDispositionNote(ipNote);
-                vTaskModel.setDispositionComment(ipComment);
-                vTaskModel.setDispositionDate(vToday);
-                aa.workflow.handleDisposition(vTaskModel, vCapId);
-                vMoved = true;
-                logMessage("Moved Workflow Task: " + ipTask + " with status " + ipStatus);
-                logDebug("Moved Workflow Task: " + ipTask + " with status " + ipStatus);
-            } else {
-                var vResultAction = vTaskStatusObj.resultAction;
-                var vStepNumber = vTaskObj.getStepNumber();
-                var vProcessID = vTaskObj.getProcessID();
-                var vDispositionDate = aa.date.getCurrentDate();
-
-                if (vUseProcess)
-                    aa.workflow.handleDisposition(vCapId, vStepNumber, vProcessID, ipStatus, vDispositionDate, ipNote, ipComment, systemUserObj, vResultAction);
-                else
-                    aa.workflow.handleDisposition(vCapId, vStepNumber, ipStatus, vDispositionDate, ipNote, ipComment, systemUserObj, vResultAction);
-
-                vMoved = true;
-                aa.print("Moved Workflow Task: " + ipTask + " with status " + ipStatus);
-                logDebug("Moved Workflow Task: " + ipTask + " with status " + ipStatus);
-            }
-        }
-    }
-    return vMoved;
-}
 //Add standard condition to the specific CapID
 function addSTDConditionX(cType, cDesc, vCapID) {
 
@@ -470,5 +406,16 @@ function doesStatusExistInTaskHistory(tName, tStatus) {
         logDebug("Error getting task history : " + histResult.getErrorMessage());
     }
     return false;
+
+}
+function addApplicantToCap4ACA() {
+    puSeq = publicUserID.substring(10);
+    var peopleResult = aa.people.getUserAssociatedContact(puSeq).getOutput().toArray();
+    contactNum = peopleResult[0].getContactSeqNumber();
+
+    getPerson = aa.people.getPeople(contactNum).getOutput();
+    getPerson.setContactType("Applicant");
+
+    addApplicant = aa.people.createCapContactWithRefPeopleModel(capId, getPerson);
 
 }
