@@ -278,7 +278,12 @@ function APP_OBJ(identity, caller) {
     this.CtrcaAsyncDelegator = function () {
 
     }
-
+    this.AEADelegator = function () {
+        gs2.wf.activateTask(capId, "Corrective Review");
+        gs2.common.closeWfTask(capId, "Corrective Review", "Additional Information Received", "Additional Information Received", "");
+        aa.workflow.adjustTask(capId, "Corrective Review", "Y", "N", null, null);
+        revokeAppACAEdit();
+    }
     /**
      * Workflow task update after Delegator to call local function(s) for record specific after logic
      */
@@ -294,6 +299,7 @@ function APP_OBJ(identity, caller) {
         else if(wfTask == "Correction Review" && wfStatus == "Additional Information Required")
         {
             gs2.wf.deActivateWfTask(capId, "Correction Review");
+            sendAppToACA4Edit();
             //gs2.rec.addStdConditionWithComments("Licensing", "Addtional Information Required", "Additional Information Required","Additional Information Required" , wfComment , null);
             //addSTDConditionX("Addtional Information Required", "Additional Information Required", capId);
         }
@@ -403,4 +409,21 @@ function copyASITable(pFromCapId, pToCapId, tableName) {
         addASITable(tn, tempArray, pToCapId);
         logDebug("ASI Table Array : " + tn + " (" + numrows + " Rows)");
     }
+}
+function sendAppToACA4Edit() {
+    // Send to ACA user for EDIT.
+    var vCapID = capId;
+    if (arguments.length > 0) vCapID = arguments[0];
+    var vCap = aa.cap.getCap(vCapID).getOutput().getCapModel();
+    vCap.setCapClass("EDITABLE");
+    aa.cap.editCapByPK(vCap);
+}
+// END FUNCTION NAME: sendAppToACA4Edit
+function revokeAppACAEdit() {
+    // Send to ACA user for EDIT.
+    var vCapID = capId;
+    if (arguments.length > 0) vCapID = arguments[0];
+    var vCap = aa.cap.getCap(vCapID).getOutput().getCapModel();
+    vCap.setCapClass("COMPLETE");
+    aa.cap.editCapByPK(vCap);
 }

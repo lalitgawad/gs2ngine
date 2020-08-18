@@ -289,6 +289,7 @@ function APP_OBJ(identity, caller) {
             var pocCapId = gs2.rec.createChild("Licenses","Plan of Correction","NA","NA");
             gs2.rec.updateAppStatus("Awaiting Provider Response","", pocCapId);
             editAppName("",pocCapId);
+            sendAppToACA4Edit(pocCapId);
             var pocItemsArr = this.getPOCItems();
             addASITable("DIFICIENCY LISTING", pocItemsArr, pocCapId);
             gs2.wf.deActivateWfTask(capId, "Supervisory Review");
@@ -459,4 +460,12 @@ function editCapConditionStatusX(pType, pDesc, pStatus, pStatusType) {
     }
     aa.print("ERROR: no matching condition found");
     return false
+}
+function sendAppToACA4Edit() {
+    // Send to ACA user for EDIT.
+    var vCapID = capId;
+    if (arguments.length > 0) vCapID = arguments[0];
+    var vCap = aa.cap.getCap(vCapID).getOutput().getCapModel();
+    vCap.setCapClass("EDITABLE");
+    aa.cap.editCapByPK(vCap);
 }
