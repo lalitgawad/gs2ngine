@@ -13,7 +13,7 @@ try {
 
 if (!gpf.async_) {
 	try {
-		gs2.wf.updateAppandTaskStatusAsaACA();
+		//gs2.wf.updateAppandTaskStatusAsaACA();
 	} catch (err) {
 		logDebug("A JavaScript Error occurred: CTRCA:SERVICEREQUEST/*/*/*: Defect 53: " + err.message);
 	}
@@ -21,7 +21,7 @@ if (!gpf.async_) {
 
 if (publicUser) {
 	try {
-		gs2.rec.SetExpirationDate(capId, "Initialize", "Initialize");
+		//gs2.rec.SetExpirationDate(capId, "Initialize", "Initialize");
 	} catch (err) {
 		logDebug("**WARNING: CTRCA:SERVICEREQUEST/*/*/*: #ID-SetExpirationDate: " + err.message);
 	}
