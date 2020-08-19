@@ -323,3 +323,43 @@ function demoSendComplaintSubmission() {
         logDebug("WARNING: demoSendComplaintSubmission:" + err.message);
     }
 }
+
+function demoSendIncidentSubmission() {
+    try {
+        var notificationType = "GS2_INCIDENT_INTAKE";
+        var templateName = "GS2_INCIDENT_INTAKE";
+        var alternateCapId = capId;
+        var appReport = null;
+        var cntArray = ["Facility", "Applicant"];
+        var sendTo = demogetEmailRecipients(cntArray);
+        var signage = "Bureau of Human Services Licensing";
+        var alias = ""
+        var recordName = "";
+
+        var capScriptModel = aa.cap.getCap(capId);
+        if (capScriptModel.getSuccess()) {
+            capType = capScriptModel.getOutput().getCapType();
+            alias = capType.alias;
+        }
+
+        var acaRecordUrl = demogetACARecordURL(acaUrl);
+        //var emailParams=notifyObj.getEmailParameters();
+        var emailParameters = aa.util.newHashtable();
+        gs2.notification.getRecordParams4Notification(emailParameters);
+
+        addParameter(emailParameters, "$$RecordName$$", recordName);
+        addParameter(emailParameters, "$$RecordID$$", capIDString);
+        addParameter(emailParameters, "$$RecordType$$", alias);
+        addParameter(emailParameters, "$$acaRecordUrl$$", acaRecordUrl);
+        addParameter(emailParameters, "$$signage$$", signage);
+
+
+        //logDebug("sendTo :::> "+sendTo+" appReport :::> "+appReport+" sysFromEmail :::> "+sysFromEmail+" emailParams :::> "+emailParameters)
+        //emailSent = gcomSendNotification(sysFromEmail, sendTo, "", templateName, emailParameters, appReport);
+        emailSent = demoSendEmailNotification(sysFromEmail, sendTo, "", templateName, emailParameters, appReport);
+        logDebug("Email Sent -> " + emailSent)
+    }
+    catch (err) {
+        logDebug("WARNING: demoSendIncidentSubmission:" + err.message);
+    }
+}
