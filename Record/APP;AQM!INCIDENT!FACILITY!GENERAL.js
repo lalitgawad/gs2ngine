@@ -1,5 +1,5 @@
 /**
- | Program : APP:SERVICEREQUEST/GENERAL/COMPLAINT/INVESTIGATION
+ | Program : APP:AQM/INCIDENT/FACILITY/GENERAL
  | Trigger : N/A
  | Event : N/A
  | Usage : Application Object use in events to implement city buiseness
@@ -15,14 +15,14 @@
 
 /**
  Application Object for
-  APP:ServiceRequest/General/Complaint/Investigation
+  APP:Enforcement/Incident/Facility/General
  * @param {string} identity - recordtype
  * @param {string} caller - code context
  */
 function APP_OBJ(identity, caller) {
     gCaller = caller;
 
-    this.ObjId = "APP:ServiceRequest/General/Complaint/Investigation";
+    this.ObjId = "APP:AQM/Incident/Facility/General";
     this.Id = identity;
     this.Caller = caller;
     this.publicUser = false;
@@ -173,7 +173,6 @@ function APP_OBJ(identity, caller) {
         }
         if(publicUser){
         }
-
     }
 
     this.AsiuaDelegator = function () {
@@ -189,7 +188,7 @@ function APP_OBJ(identity, caller) {
      * CTRCA Delegator to call local function(s) for record specific after logic
      */
     this.CtrcaDelegator = function () {
-        demoSendComplaintSubmission();
+        demoSendIncidentSubmission();
     }
 
     this.ISHBDelegator = function () {

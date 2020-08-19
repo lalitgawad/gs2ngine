@@ -193,6 +193,7 @@ function APP_OBJ(identity, caller) {
             gs2.common.closeWfTask(capId, "Application Intake", "Intake Complete", "Intake Complete", "");
         }
         addApplicantToCap4ACA();
+		demoSendApplicationSubmission();
     }
 
     this.ISHBDelegator = function () {
@@ -217,7 +218,7 @@ function APP_OBJ(identity, caller) {
 
     }
     this.ISHADelegator = function () {
-
+		demoSendInspectionScheduled();
     }
     this.IRSADelegator = function () {
         if(inspResult == "Compliant - Finalized")
@@ -294,6 +295,8 @@ function APP_OBJ(identity, caller) {
             addASITable("DIFICIENCY LISTING", pocItemsArr, pocCapId);
             gs2.wf.deActivateWfTask(capId, "Supervisory Review");
             gs2.wf.deActivateWfTask(capId, "Application Issuance");
+			var comments = "Deficiency Report Issued - please submit plan of correction."; 
+			demoSendAdditinalInfoRequiredForApp(comments);
         }
         else if(wfTask == "Application Issuance" && wfStatus == "Application Approved - Issue Permit")
         {
@@ -301,17 +304,22 @@ function APP_OBJ(identity, caller) {
             gs2.rec.updateAppStatus("Active","", licCapId);
             updateExpirationDateFromToday(licCapId, new Date());
             editAppName("",licCapId);
+			demoSendLicenseIssuance(licCapId);
         }
         else if(wfTask == "Application Review" && wfStatus == "Additional Information Required")
         {
             gs2.wf.deActivateWfTask(capId, "Application Review");
             //gs2.rec.addStdConditionWithComments("Licensing", "Addtional Information Required", "Additional Information Required","Additional Information Required" , wfComment , null);
             addSTDConditionX("Addtional Information Required", "Additional Information Required", capId);
+			var comments = "Send missing required information"; 
+			demoSendAdditinalInfoRequiredForApp(comments);
         }
         else if(wfTask == "Inspection" && wfStatus == "Request Additional Information")
         {
             gs2.wf.deActivateWfTask(capId, "Inspection");
             addSTDConditionX("Addtional Information Required", "Additional Information Required", capId);
+			var comments = "Send missing required information"; 
+			demoSendAdditinalInfoRequiredForApp(comments);
         }
     }
 
