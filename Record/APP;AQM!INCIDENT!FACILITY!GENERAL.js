@@ -188,6 +188,7 @@ function APP_OBJ(identity, caller) {
      * CTRCA Delegator to call local function(s) for record specific after logic
      */
     this.CtrcaDelegator = function () {
+        addApplicantToCap4ACA();
         demoSendIncidentSubmission();
     }
 
@@ -285,5 +286,16 @@ function APP_OBJ(identity, caller) {
             aa.env.setValue("ReturnData", "{'PageFlow': {'HidePage' : 'Y'}}");
         }
     }
+
+}
+function addApplicantToCap4ACA() {
+    puSeq = publicUserID.substring(10);
+    var peopleResult = aa.people.getUserAssociatedContact(puSeq).getOutput().toArray();
+    contactNum = peopleResult[0].getContactSeqNumber();
+
+    getPerson = aa.people.getPeople(contactNum).getOutput();
+    getPerson.setContactType("Applicant");
+
+    addApplicant = aa.people.createCapContactWithRefPeopleModel(capId, getPerson);
 
 }
