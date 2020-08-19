@@ -75,6 +75,9 @@ function demoSendAdditinalInfoRequiredForApp(comments) {
         var actByUserEmail = actUserObj.getEmail();
         var actByUserAgency = "DHS"; //actUserObj.getAgencyCode();
         var sBureauName = "Bureau of Human Services Licensing";
+        if(wfComment) {
+            comments = wfComment + "";
+        }
 
         var acaRecordUrl = demogetACARecordURL(acaUrl);
         logDebug(acaRecordUrl);

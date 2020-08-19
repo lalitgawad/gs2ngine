@@ -7,7 +7,7 @@ catch (err) {
 }
 
 try {
-    gs2.wf.setRecToClosed();
+    //gs2.wf.setRecToClosed();
     //REVISIT
 	//autoAssignUser();
 }
@@ -22,7 +22,7 @@ if (objWTUA) logDebug("objWTUA: " + objWTUA);
 if (matches(wfStatus, "Additional Information Required")) {
     appSpecificLogic = true;
     //priya
-    sendAdditionalInfoEmail();
+    //sendAdditionalInfoEmail();
 }  
 
 
@@ -45,7 +45,7 @@ catch (err) {
 }
 
 try {
-    gs2.rec.SetExpirationDate(capId, wfTask, wfStatus);
+    //gs2.rec.SetExpirationDate(capId, wfTask, wfStatus);
 }
 catch (err) {
     logDebug("**WARNING: WTUA:AQM/*/*/*: #ID-UNK: " + err.message);
@@ -53,6 +53,7 @@ catch (err) {
 
 //changes
 try {
+    /*
     wfTasks = aa.workflow.getTaskItemByCapID(capId, null).getOutput();
     for (i in wfTasks) {
         var vWFTask = wfTasks[i];
@@ -61,6 +62,7 @@ try {
             break;
         }
     }
+    */
 }
 catch (err) {
     logDebug("**WARNING: WTUA:AQM/*/*/*: #ID-Update App Status: " + err.message);

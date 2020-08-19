@@ -7,7 +7,7 @@ catch (err) {
 }
 
 try {
-    gs2.wf.setRecToClosed();
+    //gs2.wf.setRecToClosed();
     //REVISIT
 	//autoAssignUser();
 }
@@ -19,10 +19,23 @@ var objWTUA = appObj.WtuaDelegator();
 if (objWTUA) logDebug("objWTUA: " + objWTUA);
 
 
-if (matches(wfStatus, "Additional Information Required")) {
+if (matches(wfStatus, "Additional Information Required") || true) {
     appSpecificLogic = true;
+    useTaskSpecificGroupName  = true;
+    var thisArr = new Array();
+    loadTaskSpecific(thisArr);
+
+    for (var v in thisArr) {
+        logDebug(v);
+        logDebug(thisArr[v]);
+    }
+
+    var WFT_Comments = wfProcess + "." + wfTask + ".User Group";
+    logDebug(WFT_Comments);
+    logDebug(thisArr[WFT_Comments]);
+
     //priya
-    sendAdditionalInfoEmail();
+    //sendAdditionalInfoEmail();
 }  
 
 
@@ -37,7 +50,7 @@ catch (err) {
 //Added below code to address requirements
 try {
     if (wfStatus == "Additional Information Received") {
-        gs2.wf.updateTaskDueDateIfReq(wfTask, capId);
+        //gs2.wf.updateTaskDueDateIfReq(wfTask, capId);
 	}
 }
 catch (err) {
@@ -45,7 +58,7 @@ catch (err) {
 }
 
 try {
-    gs2.rec.SetExpirationDate(capId, wfTask, wfStatus);
+    //gs2.rec.SetExpirationDate(capId, wfTask, wfStatus);
 }
 catch (err) {
     logDebug("**WARNING: WTUA:SERVICEREQUEST/*/*/*: #ID-UNK: " + err.message);
@@ -53,6 +66,7 @@ catch (err) {
 
 //changes
 try {
+    /*
     wfTasks = aa.workflow.getTaskItemByCapID(capId, null).getOutput();
     for (i in wfTasks) {
         var vWFTask = wfTasks[i];
@@ -61,6 +75,7 @@ try {
             break;
         }
     }
+    */
 }
 catch (err) {
     logDebug("**WARNING: WTUA:SERVICEREQUEST/*/*/*: #ID-Update App Status: " + err.message);
