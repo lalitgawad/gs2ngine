@@ -137,37 +137,7 @@ function APP_OBJ(identity, caller) {
     }
 
     this.activatePostPermitOnDocUpload = function(){
-        try {
-            var vDocumentModelArray = aa.env.getValue("DocumentModelList");
-            var docupload = false;
-            if (vDocumentModelArray.size() > 0) {
-                for (var index = 0; index < vDocumentModelArray.size(); index++) {
-                    var docName = String(vDocumentModelArray.get(index).getDocCategory());
-                    if (matches(docName, "Construction Plan", "Floor Plan Existing", "Monument Engineered Plan", "Site Plan", "Traffic Plan", "Tree Preservation Plan")){
-                        docupload = true;
-                    }
-                }
-            }
-            if (docupload) {
-                if(isTaskActive("Permit Issued") && isTaskStatus("Permit Issued", "Issued")){
-                    closeTask("Permit Issued", "Post Permit Review Required", "Closed via script", "Closed via script");
-                    activateTask("Post Permit Completeness Review");
-                    updateTask("Post Permit Completeness Review", "Under Review", "Updated by Script", "");
-                    var vDaysDue = this.getDurationDays();;
-                    var updatedDueDate = dateAdd(aa.date.getCurrentDate(), vDaysDue);
-                    var calID = isBusinessCalAssociated("Post Permit Completeness Review", capId);
-                    if (calID != -1) {
-                        updatedDueDate = addBusinessDays(aa.date.getCurrentDate(), vDaysDue, calID);
-                    }
-                    editTaskDueDate("Post Permit Completeness Review", updatedDueDate);
-                    //REVISIT
-                    autoAssign("Post Permit Completeness Review", "COSA/DSD/BLD/PR/NA/ADMIN/NA");
-                    aa.workflow.adjustTask(capId, "Closure", "N", "N", null, null);
-                }
-            }
-        } catch (err) {
-            logDebug("A JavaScript Error occurred: DuaDelegator: " + err.message);
-        }
+
     }
 
     this.GUADelegator = function()
@@ -219,8 +189,7 @@ function APP_OBJ(identity, caller) {
      * CTRCA Delegator to call local function(s) for record specific after logic
      */
     this.CtrcaDelegator = function () {
-        this.appSubmissionActions();
-
+        demoSendComplaintSubmission();
     }
 
     this.ISHBDelegator = function () {

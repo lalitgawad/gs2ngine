@@ -38,15 +38,16 @@ function demogetEmailRecipients(contactTypeArray) {
 
 function demogetACARecordURL(acaUrl) {
     itemCap = capId;
-    if (arguments.length == 1) itemCap = arguments[0]; // use cap ID specified in args
+    if (arguments.length > 1) itemCap = arguments[1]; // use cap ID specified in args
 
     var acaRecordUrl = "";
     var id1 = itemCap.ID1;
     var id2 = itemCap.ID2;
     var id3 = itemCap.ID3;
+    var vCapM = aa.cap.getCap(itemCap).getOutput().getCapModel();
 
     acaRecordUrl = acaUrl + "/urlrouting.ashx?type=1000";
-    acaRecordUrl += "&Module=" + itemCap.getCapModel().getModuleName();
+    acaRecordUrl += "&Module=" + vCapM.getModuleName();
     acaRecordUrl += "&capID1=" + id1 + "&capID2=" + id2 + "&capID3=" + id3;
     acaRecordUrl += "&agencyCode=" + aa.getServiceProviderCode();
 
@@ -283,3 +284,42 @@ function demoSendInspectionScheduled() {
     }
 }
 
+function demoSendComplaintSubmission() {
+    try {
+        var notificationType = "GS2_COMPLAINT_INTAKE";
+        var templateName = "GS2_COMPLAINT_INTAKE";
+        var alternateCapId = capId;
+        var appReport = null;
+        var cntArray = ["Complainant"]
+        var sendTo = demogetEmailRecipients(cntArray);
+        var signage = "Bureau of Human Services Licensing";
+        var alias = ""
+        var recordName = "";
+
+        var capScriptModel = aa.cap.getCap(capId);
+        if (capScriptModel.getSuccess()) {
+            capType = capScriptModel.getOutput().getCapType();
+            alias = capType.alias;
+        }
+
+        var acaRecordUrl = demogetACARecordURL(acaUrl);
+        //var emailParams=notifyObj.getEmailParameters();
+        var emailParameters = aa.util.newHashtable();
+        gs2.notification.getRecordParams4Notification(emailParameters);
+
+        addParameter(emailParameters, "$$RecordName$$", recordName);
+        addParameter(emailParameters, "$$RecordID$$", capIDString);
+        addParameter(emailParameters, "$$RecordType$$", alias);
+        addParameter(emailParameters, "$$acaRecordUrl$$", acaRecordUrl);
+        addParameter(emailParameters, "$$signage$$", signage);
+
+
+        //logDebug("sendTo :::> "+sendTo+" appReport :::> "+appReport+" sysFromEmail :::> "+sysFromEmail+" emailParams :::> "+emailParameters)
+        //emailSent = gcomSendNotification(sysFromEmail, sendTo, "", templateName, emailParameters, appReport);
+        emailSent = demoSendEmailNotification(sysFromEmail, sendTo, "", templateName, emailParameters, appReport);
+        logDebug("Email Sent -> " + emailSent)
+    }
+    catch (err) {
+        logDebug("WARNING: demoSendComplaintSubmission:" + err.message);
+    }
+}
