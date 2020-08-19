@@ -19,21 +19,8 @@ var objWTUA = appObj.WtuaDelegator();
 if (objWTUA) logDebug("objWTUA: " + objWTUA);
 
 
-if (matches(wfStatus, "Additional Information Required") || true) {
+if (matches(wfStatus, "Additional Information Required")) {
     appSpecificLogic = true;
-    useTaskSpecificGroupName  = true;
-    var thisArr = new Array();
-    loadTaskSpecific(thisArr);
-
-    for (var v in thisArr) {
-        logDebug(v);
-        logDebug(thisArr[v]);
-    }
-
-    var WFT_Comments = wfProcess + "." + wfTask + ".User Group";
-    logDebug(WFT_Comments);
-    logDebug(thisArr[WFT_Comments]);
-
     //priya
     //sendAdditionalInfoEmail();
 }  
