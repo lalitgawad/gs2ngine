@@ -293,7 +293,7 @@ function APP_OBJ(identity, caller) {
             this.resultNonCompliantInspection();
             var pCapId = getParent();
             gs2.wf.activateTask(pCapId, "Supervisory Review");
-            aa.workflow.adjustTask(capId, "Supervisory Review", "Y", "N", null, null);
+            aa.workflow.adjustTask(pCapId, "Supervisory Review", "Y", "N", null, null);
             copyASITable(capId, pCapId, "DIFICIENCY LISTING");
         }
         else if(wfTask == "Correction Review" && wfStatus == "Additional Information Required")
