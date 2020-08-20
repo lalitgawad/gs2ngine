@@ -170,6 +170,12 @@ function APP_OBJ(identity, caller) {
      */
     this.AsaDelegator = function () {
         if (!publicUser) {
+            var id = AInfo["License Number"];
+            var vCapID = aa.cap.getCapID(id).getOutput();
+            if(vCapID)
+            {
+                aa.cap.createAppHierarchy(capId, vCapID);
+            }
         }
         if(publicUser){
         }
@@ -190,6 +196,12 @@ function APP_OBJ(identity, caller) {
     this.CtrcaDelegator = function () {
         addApplicantToCap4ACA();
         demoSendIncidentSubmission();
+        var id = AInfo["License Number"];
+        var vCapID = aa.cap.getCapID(id).getOutput();
+        if(vCapID)
+        {
+            aa.cap.createAppHierarchy(capId, vCapID);
+        }
     }
 
     this.ISHBDelegator = function () {
