@@ -222,7 +222,9 @@ function APP_OBJ(identity, caller) {
      * CTRCA Delegator to call local function(s) for record specific after logic
      */
     this.CtrcaDelegator = function () {
-        this.appSubmissionActions();
+        gs2.wf.activateTask(capId, "Corrective Review");
+        gs2.common.closeWfTask(capId, "Corrective Review", "Additional Information Received", "Additional Information Received", "");
+        aa.workflow.adjustTask(capId, "Corrective Review", "Y", "N", null, null);
 
     }
 
