@@ -366,3 +366,129 @@ function demoSendIncidentSubmission() {
         logDebug("WARNING: demoSendIncidentSubmission:" + err.message);
     }
 }
+
+function demoSendExpirationNotice(renewalCapId) {
+    try {
+        var notificationType = "GS2_EXPIRATION_NOTICE";
+        var templateName = "GS2_EXPIRATION_NOTICE";
+        var alternateCapId = capId;
+        var appReport = null;
+        var cntArray = ["Facility", "Applicant"];
+        var sendTo = demogetEmailRecipients(cntArray);
+        var signage = "Bureau of Human Services Licensing";
+        var alias = ""
+        var recordName = "";
+
+        var capScriptModel = aa.cap.getCap(capId);
+        if (capScriptModel.getSuccess()) {
+            capType = capScriptModel.getOutput().getCapType();
+            alias = capType.alias;
+        }
+
+        var b1ExpDate = "";
+        var renewalAltIDString = "";
+        b1ExpResult = aa.expiration.getLicensesByCapID(capId);
+        if (b1ExpResult.getSuccess()) {
+            var b1Exp = b1ExpResult.getOutput();
+            var expDate = b1Exp.getExpDate();
+            if (expDate) b1ExpDate = expDate.getMonth() + "/" + expDate.getDayOfMonth() + "/" + expDate.getYear();
+            
+            if(renewalCapId) {
+                renewalAltIDString = renewalCapId.getCustomID();
+            } else {
+                var renewalCapArray = aa.cap.getProjectByMasterID(capId, "Renewal", "").getOutput();
+                if(renewalCapArray.length > 0){
+                    renewalCapId = renewalCapArray[0].getCapID();
+                    var id1 = renewalCapId.getID1();
+                    var id2 = renewalCapId.getID2();
+                    var id3 = renewalCapId.getID3();
+                    
+                    var result = aa.cap.getCapIDModel(id1, id2, id3).getOutput();
+                    renewalAltIDString = renewalCapId.getCustomID();
+                }
+            }
+        }
+        
+        logDebug(b1ExpDate);
+        if(renewalAltIDString) {
+            
+        } else {
+            renewalAltIDString = "Record";
+        }
+        logDebug(renewalAltIDString);
+        
+        var acaRecordUrl = demogetACARecordURL(acaUrl);
+        logDebug(acaRecordUrl);
+        var acaRenewalRecordUrl = demogetACARecordURL(acaUrl, renewalCapId);
+        logDebug(acaRenewalRecordUrl);
+        
+        //var emailParams=notifyObj.getEmailParameters();
+        var emailParameters = aa.util.newHashtable();
+        gs2.notification.getRecordParams4Notification(emailParameters);
+        
+        addParameter(emailParameters, "$$RecordName$$", recordName);
+        addParameter(emailParameters, "$$RecordID$$", capIDString);
+        addParameter(emailParameters, "$$RecordType$$", alias);
+        addParameter(emailParameters, "$$acaRecordUrl$$", acaRecordUrl);
+        addParameter(emailParameters, "$$expirationdate$$", b1ExpDate);
+        addParameter(emailParameters, "$$RenewalRecordId$$", renewalAltIDString);
+        addParameter(emailParameters, "$$acaRenewalRecordUrl$$", acaRenewalRecordUrl);
+        addParameter(emailParameters, "$$signage$$", signage);
+
+
+        //logDebug("sendTo :::> "+sendTo+" appReport :::> "+appReport+" sysFromEmail :::> "+sysFromEmail+" emailParams :::> "+emailParameters)
+        //emailSent = gcomSendNotification(sysFromEmail, sendTo, "", templateName, emailParameters, appReport);
+        emailSent = demoSendEmailNotification(sysFromEmail, sendTo, "", templateName, emailParameters, appReport);
+        logDebug("Email Sent -> " + emailSent)
+    }
+    catch (err) {
+        logDebug("WARNING: demoSendExpirationNotice:" + err.message);
+    }
+}
+
+function demoSendPocNotice() {
+    try {
+        var notificationType = "GS2_POC_NOTICE";
+        var templateName = "GS2_POC_NOTICE";
+        var alternateCapId = capId;
+        var appReport = null;
+        var cntArray = ["Facility", "Applicant"];
+        var sendTo = demogetEmailRecipients(cntArray);
+        var signage = "Bureau of Human Services Licensing";
+        var alias = ""
+        var recordName = "";
+
+        itemCap = capId;
+        if (arguments.length == 1) itemCap = arguments[0]; // use cap ID specified in args
+        
+        var capScriptModel = aa.cap.getCap(itemCap);
+        if (capScriptModel.getSuccess()) {
+            capType = capScriptModel.getOutput().getCapType();
+            alias = capType.alias;
+        }
+        var altIDString = itemCap.getCustomID();
+        
+        var acaRecordUrl = demogetACARecordURL(acaUrl, itemCap);
+        logDebug(acaRecordUrl);
+        
+        //var emailParams=notifyObj.getEmailParameters();
+        var emailParameters = aa.util.newHashtable();
+        gs2.notification.getRecordParams4Notification(emailParameters);
+        
+        addParameter(emailParameters, "$$RecordName$$", recordName);
+        addParameter(emailParameters, "$$RecordID$$", capIDString);
+        addParameter(emailParameters, "$$PocRecordId$$", capIDString);
+        addParameter(emailParameters, "$$RecordType$$", alias);
+        addParameter(emailParameters, "$$acaRecordUrl$$", acaRecordUrl);
+        addParameter(emailParameters, "$$acaPocRecordUrl$$", acaRecordUrl);
+        addParameter(emailParameters, "$$signage$$", signage);
+
+        //logDebug("sendTo :::> "+sendTo+" appReport :::> "+appReport+" sysFromEmail :::> "+sysFromEmail+" emailParams :::> "+emailParameters)
+        //emailSent = gcomSendNotification(sysFromEmail, sendTo, "", templateName, emailParameters, appReport);
+        emailSent = demoSendEmailNotification(sysFromEmail, sendTo, "", templateName, emailParameters, appReport);
+        logDebug("Email Sent -> " + emailSent)
+    }
+    catch (err) {
+        logDebug("WARNING: demoSendPocNotice:" + err.message);
+    }
+}
