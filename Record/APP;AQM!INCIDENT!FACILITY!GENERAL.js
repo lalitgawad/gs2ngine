@@ -176,6 +176,7 @@ function APP_OBJ(identity, caller) {
             {
                 aa.cap.createAppHierarchy(capId, vCapID);
             }
+            democreateAddressUsingFacilityContact();
         }
         if(publicUser){
         }
@@ -202,6 +203,7 @@ function APP_OBJ(identity, caller) {
         {
             aa.cap.createAppHierarchy(capId, vCapID);
         }
+        democreateAddressUsingFacilityContact();
     }
 
     this.ISHBDelegator = function () {

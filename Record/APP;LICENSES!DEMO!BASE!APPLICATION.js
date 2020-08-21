@@ -172,6 +172,10 @@ function APP_OBJ(identity, caller) {
         if (!publicUser) {
             gs2.common.closeWfTask(capId, "Application Intake", "Intake Complete", "Intake Complete", "");
         }
+        if (!publicUser) {
+            democreateAddressUsingFacilityContact();
+            demoSendApplicationSubmission();
+        }
     }
 
     this.AsiuaDelegator = function () {
@@ -193,6 +197,7 @@ function APP_OBJ(identity, caller) {
             gs2.common.closeWfTask(capId, "Application Intake", "Intake Complete", "Intake Complete", "");
         }
         addApplicantToCap4ACA();
+        democreateAddressUsingFacilityContact();
 		demoSendApplicationSubmission();
     }
 
@@ -290,14 +295,23 @@ function APP_OBJ(identity, caller) {
         {
             var pocCapId = gs2.rec.createChild("Licenses","Plan of Correction","NA","NA");
             gs2.rec.updateAppStatus("Awaiting Provider Response","", pocCapId);
-            var capModelScript = aa.cap.getCap(capId).getOutput();
-            var capModel = capModelScript.getCapModel();
-            var user = capModel.getCreatedBy();
-            editCreatedBy(user,pocCapId);
-            editAppName("",pocCapId);
+            
+            //var capModelScript = aa.cap.getCap(capId).getOutput();
+            //var capModel = capModelScript.getCapModel();
+            //var user = capModel.getCreatedBy();
+            //editCreatedBy(user,pocCapId);
+            //editAppName("",pocCapId);
+            copyAppName(capId, vWoCapId);
+            copyAddresses(capId, vWoCapId);
+            copyParcels(capId, vWoCapId);
+            copyOwner(capId, vWoCapId);
+            
+            gs2.user.linkPublicUserToApplication();
             sendAppToACA4Edit(pocCapId);
+            
             var pocItemsArr = this.getPOCItems();
             addASITable("DIFICIENCY LISTING", pocItemsArr, pocCapId);
+
             gs2.wf.deActivateWfTask(capId, "Supervisory Review");
             gs2.wf.deActivateWfTask(capId, "Application Issuance");
             //var comments = "Deficiency Report Issued - please submit plan of correction.";
@@ -310,7 +324,13 @@ function APP_OBJ(identity, caller) {
             gs2.rec.updateAppStatus("Active","", licCapId);
             copyASIFields(capId, licCapId);
             updateExpirationDateFromToday(licCapId, new Date());
-            editAppName("",licCapId);
+            copyAppName(capId, vWoCapId);
+            copyAddresses(capId, vWoCapId);
+            copyParcels(capId, vWoCapId);
+            copyOwner(capId, vWoCapId);
+            gs2.user.linkPublicUserToApplication();
+
+            //editAppName("",licCapId);
 			demoSendLicenseIssuance(licCapId);
         }
         else if(wfTask == "Application Review" && wfStatus == "Additional Information Required")
