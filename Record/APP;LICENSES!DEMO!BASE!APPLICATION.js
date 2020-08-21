@@ -204,6 +204,7 @@ function APP_OBJ(identity, caller) {
         gs2.common.closeWfTask(capId, "Inspection", "Inspection Scheduled", "Compliance Inspection Scheduled", "");
         aa.workflow.adjustTask(capId, "Inspection", "Y", "N", null, null);
         aa.workflow.adjustTask(capId, "Supervisory Review", "N", "N", null, null);
+        demoSendInspectionScheduled();
     }
     /**
      * IRSB Delegator to call local function(s) for record specific after logic
@@ -287,35 +288,21 @@ function APP_OBJ(identity, caller) {
         }
         else if(wfTask == "Supervisory Review" && wfStatus == "Deficiency Report Issued")
         {
-            //var pocCapId = gs2.rec.createChild("Licenses","Plan of Correction","NA","NA");
-            var capModel = aa.cap.getCapModel().getOutput();
-            var capTypeModel = aa.cap.getCapTypeModel().getOutput();
-            capModel.setCapType(capTypeModel);
-            capModel.setCapStatus("");
-            capModel.setInitiatedProduct("ACA");
-            capModel.setCapClass("INCOMPLETE CAP");
-            capModel.setAccessByACA("Y");
-            capModel.setCreatedBy(publicUserID);
-            capTypeModel.setServiceProviderCode(aa.getServiceProviderCode());
-            capTypeModel.setGroup( "Licenses");
-            capTypeModel.setType( "Plan of Correction");
-            capTypeModel.setSubType( "NA");
-            capTypeModel.setCategory( "NA");
-            var appCreateResult = aa.cap.createPartialRecord(capModel);
-            if (appCreateResult.getSuccess())
-            {
-                var pocCapId = appCreateResult.getOutput();
-                aa.cap.createAppHierarchy(capId, pocCapId);
-                copyContacts(capId, pocCapId);
-                gs2.rec.updateAppStatus("Awaiting Provider Response","", pocCapId);
-                editAppName("",pocCapId);
-                var pocItemsArr = this.getPOCItems();
-                addASITable("DIFICIENCY LISTING", pocItemsArr, pocCapId);
-            }
+            var pocCapId = gs2.rec.createChild("Licenses","Plan of Correction","NA","NA");
+            gs2.rec.updateAppStatus("Awaiting Provider Response","", pocCapId);
+            var capModelScript = aa.cap.getCap(capId).getOutput();
+            var capModel = capModelScript.getCapModel();
+            var user = capModel.getCreatedBy();
+            editCreatedBy(user,capId);
+            editAppName("",pocCapId);
+            sendAppToACA4Edit(pocCapId);
+            var pocItemsArr = this.getPOCItems();
+            addASITable("DIFICIENCY LISTING", pocItemsArr, pocCapId);
             gs2.wf.deActivateWfTask(capId, "Supervisory Review");
             gs2.wf.deActivateWfTask(capId, "Application Issuance");
-			var comments = "Deficiency Report Issued - please submit plan of correction."; 
-			demoSendAdditinalInfoRequiredForApp(comments);
+            var comments = "Deficiency Report Issued - please submit plan of correction.";
+            //demoSendAdditinalInfoRequiredForApp(comments);
+            demoSendPocNotice(pocCapId);
         }
         else if(wfTask == "Application Issuance" && wfStatus == "Application Approved - Issue Permit")
         {

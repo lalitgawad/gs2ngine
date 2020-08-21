@@ -202,11 +202,10 @@ function APP_OBJ(identity, caller) {
      * ASA Delegator to call local function(s) for record specific after logic
      */
     this.AsaDelegator = function () {
-        if (!publicUser) {
-        }
-        if(publicUser){
-        }
-
+        gs2.wf.activateTask(capId, "Corrective Review");
+        gs2.common.closeWfTask(capId, "Corrective Review", "Additional Information Received", "Additional Information Received", "");
+        aa.workflow.adjustTask(capId, "Corrective Review", "Y", "N", null, null);
+        revokeAppACAEdit(capId);
     }
 
     this.AsiuaDelegator = function () {
@@ -225,7 +224,7 @@ function APP_OBJ(identity, caller) {
         gs2.wf.activateTask(capId, "Corrective Review");
         gs2.common.closeWfTask(capId, "Corrective Review", "Additional Information Received", "Additional Information Received", "");
         aa.workflow.adjustTask(capId, "Corrective Review", "Y", "N", null, null);
-
+        revokeAppACAEdit(capId);
     }
 
     this.ISHBDelegator = function () {
