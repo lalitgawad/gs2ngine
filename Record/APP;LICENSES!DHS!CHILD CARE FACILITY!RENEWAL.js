@@ -219,8 +219,7 @@ function APP_OBJ(identity, caller) {
      * CTRCA Delegator to call local function(s) for record specific after logic
      */
     this.CtrcaDelegator = function () {
-        this.appSubmissionActions();
-
+        demoSendApplicationSubmission();
     }
 
     this.ISHBDelegator = function () {

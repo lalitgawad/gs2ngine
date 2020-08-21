@@ -205,6 +205,7 @@ function APP_OBJ(identity, caller) {
         gs2.wf.activateTask(capId, "Corrective Review");
         gs2.common.closeWfTask(capId, "Corrective Review", "Additional Information Received", "Additional Information Received", "");
         aa.workflow.adjustTask(capId, "Corrective Review", "Y", "N", null, null);
+        demoSendApplicationSubmission();
         revokeAppACAEdit(capId);
     }
 
@@ -224,12 +225,14 @@ function APP_OBJ(identity, caller) {
         gs2.wf.activateTask(capId, "Corrective Review");
         gs2.common.closeWfTask(capId, "Corrective Review", "Additional Information Received", "Additional Information Received", "");
         aa.workflow.adjustTask(capId, "Corrective Review", "Y", "N", null, null);
+        demoSendApplicationSubmission();
         revokeAppACAEdit(capId);
     }
     this.AEADelegator = function(){
         gs2.wf.activateTask(capId, "Corrective Review");
         gs2.common.closeWfTask(capId, "Corrective Review", "Additional Information Received", "Additional Information Received", "");
         aa.workflow.adjustTask(capId, "Corrective Review", "Y", "N", null, null);
+        demoSendApplicationSubmission();
         revokeAppACAEdit(capId);
     }
 
@@ -285,16 +288,12 @@ function APP_OBJ(identity, caller) {
     this.CtrcaAsyncDelegator = function () {
 
     }
-    this.AEADelegator = function () {
-        gs2.wf.activateTask(capId, "Corrective Review");
-        gs2.common.closeWfTask(capId, "Corrective Review", "Additional Information Received", "Additional Information Received", "");
-        aa.workflow.adjustTask(capId, "Corrective Review", "Y", "N", null, null);
-        revokeAppACAEdit();
-    }
+
     this.DUADelegator = function () {
         gs2.wf.activateTask(capId, "Corrective Review");
         gs2.common.closeWfTask(capId, "Corrective Review", "Additional Information Received", "Additional Information Received", "");
         aa.workflow.adjustTask(capId, "Corrective Review", "Y", "N", null, null);
+        demoSendApplicationSubmission();
         revokeAppACAEdit();
     }
     /**
