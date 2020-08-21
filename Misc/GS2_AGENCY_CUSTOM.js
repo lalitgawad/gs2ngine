@@ -54,6 +54,42 @@ function demogetACARecordURL(acaUrl) {
     return acaRecordUrl;
 }
 
+function demogetACAEditRecordURL(acaUrl) {
+    itemCap = capId;
+    if (arguments.length > 1) itemCap = arguments[1]; // use cap ID specified in args
+
+    var acaRecordUrl = "";
+    var id1 = itemCap.ID1;
+    var id2 = itemCap.ID2;
+    var id3 = itemCap.ID3;
+    var vCapM = aa.cap.getCap(itemCap).getOutput().getCapModel();
+
+    acaRecordUrl = acaUrl + "/urlrouting.ashx?type=1011";
+    acaRecordUrl += "&Module=" + vCapM.getModuleName();
+    acaRecordUrl += "&capID1=" + id1 + "&capID2=" + id2 + "&capID3=" + id3;
+    acaRecordUrl += "&agencyCode=" + aa.getServiceProviderCode();
+
+    return acaRecordUrl;
+}
+
+function demogetACATempRecordURL(acaUrl) {
+    itemCap = capId;
+    if (arguments.length > 1) itemCap = arguments[1]; // use cap ID specified in args
+
+    var acaRecordUrl = "";
+    var id1 = itemCap.ID1;
+    var id2 = itemCap.ID2;
+    var id3 = itemCap.ID3;
+    var vCapM = aa.cap.getCap(itemCap).getOutput().getCapModel();
+
+    acaRecordUrl = acaUrl + "/urlrouting.ashx?type=1005";
+    acaRecordUrl += "&Module=" + vCapM.getModuleName();
+    acaRecordUrl += "&capID1=" + id1 + "&capID2=" + id2 + "&capID3=" + id3;
+    acaRecordUrl += "&agencyCode=" + aa.getServiceProviderCode();
+
+    return acaRecordUrl;
+}
+
 function demoSendAdditinalInfoRequiredForApp(comments) {
     try {
         var notificationType = "GS2_ADDITIONAL_INFORMATION_REQUIRED";
@@ -417,7 +453,7 @@ function demoSendExpirationNotice(renewalCapId) {
         }
         logDebug(renewalAltIDString);
         
-        var acaRecordUrl = demogetACARecordURL(acaUrl);
+        var acaRecordUrl = demogetACATempRecordURL(acaUrl);
         logDebug(acaRecordUrl);
         var acaRenewalRecordUrl = demogetACARecordURL(acaUrl, renewalCapId);
         logDebug(acaRenewalRecordUrl);
@@ -468,7 +504,7 @@ function demoSendPocNotice() {
         }
         var altIDString = itemCap.getCustomID();
         
-        var acaRecordUrl = demogetACARecordURL(acaUrl, itemCap);
+        var acaRecordUrl = demogetACAEditRecordURL(acaUrl, itemCap);
         logDebug(acaRecordUrl);
         
         //var emailParams=notifyObj.getEmailParameters();
