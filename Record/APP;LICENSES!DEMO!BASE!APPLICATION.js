@@ -293,14 +293,14 @@ function APP_OBJ(identity, caller) {
             var capModelScript = aa.cap.getCap(capId).getOutput();
             var capModel = capModelScript.getCapModel();
             var user = capModel.getCreatedBy();
-            editCreatedBy(user,capId);
+            editCreatedBy(user,pocCapId);
             editAppName("",pocCapId);
             sendAppToACA4Edit(pocCapId);
             var pocItemsArr = this.getPOCItems();
             addASITable("DIFICIENCY LISTING", pocItemsArr, pocCapId);
             gs2.wf.deActivateWfTask(capId, "Supervisory Review");
             gs2.wf.deActivateWfTask(capId, "Application Issuance");
-            var comments = "Deficiency Report Issued - please submit plan of correction.";
+            //var comments = "Deficiency Report Issued - please submit plan of correction.";
             //demoSendAdditinalInfoRequiredForApp(comments);
             demoSendPocNotice(pocCapId);
         }
@@ -308,6 +308,7 @@ function APP_OBJ(identity, caller) {
         {
             var licCapId = gs2.rec.createParent(appTypeArray[0],appTypeArray[1],appTypeArray[2],"License");
             gs2.rec.updateAppStatus("Active","", licCapId);
+            copyASIFields(capId, licCapId);
             updateExpirationDateFromToday(licCapId, new Date());
             editAppName("",licCapId);
 			demoSendLicenseIssuance(licCapId);

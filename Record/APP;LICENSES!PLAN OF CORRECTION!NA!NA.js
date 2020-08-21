@@ -226,6 +226,12 @@ function APP_OBJ(identity, caller) {
         aa.workflow.adjustTask(capId, "Corrective Review", "Y", "N", null, null);
         revokeAppACAEdit(capId);
     }
+    this.AEADelegator = function(){
+        gs2.wf.activateTask(capId, "Corrective Review");
+        gs2.common.closeWfTask(capId, "Corrective Review", "Additional Information Received", "Additional Information Received", "");
+        aa.workflow.adjustTask(capId, "Corrective Review", "Y", "N", null, null);
+        revokeAppACAEdit(capId);
+    }
 
     this.ISHBDelegator = function () {
         var errorMessageVal = "";
@@ -280,6 +286,12 @@ function APP_OBJ(identity, caller) {
 
     }
     this.AEADelegator = function () {
+        gs2.wf.activateTask(capId, "Corrective Review");
+        gs2.common.closeWfTask(capId, "Corrective Review", "Additional Information Received", "Additional Information Received", "");
+        aa.workflow.adjustTask(capId, "Corrective Review", "Y", "N", null, null);
+        revokeAppACAEdit();
+    }
+    this.DUADelegator = function () {
         gs2.wf.activateTask(capId, "Corrective Review");
         gs2.common.closeWfTask(capId, "Corrective Review", "Additional Information Received", "Additional Information Received", "");
         aa.workflow.adjustTask(capId, "Corrective Review", "Y", "N", null, null);

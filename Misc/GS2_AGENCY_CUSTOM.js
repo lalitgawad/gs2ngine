@@ -477,7 +477,7 @@ function demoSendPocNotice() {
         
         addParameter(emailParameters, "$$RecordName$$", recordName);
         addParameter(emailParameters, "$$RecordID$$", capIDString);
-        addParameter(emailParameters, "$$PocRecordId$$", capIDString);
+        addParameter(emailParameters, "$$PocRecordId$$", altIDString);
         addParameter(emailParameters, "$$RecordType$$", alias);
         addParameter(emailParameters, "$$acaRecordUrl$$", acaRecordUrl);
         addParameter(emailParameters, "$$acaPocRecordUrl$$", acaRecordUrl);
