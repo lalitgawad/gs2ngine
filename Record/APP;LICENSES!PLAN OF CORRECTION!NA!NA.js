@@ -202,9 +202,9 @@ function APP_OBJ(identity, caller) {
      * ASA Delegator to call local function(s) for record specific after logic
      */
     this.AsaDelegator = function () {
-        gs2.wf.activateTask(capId, "Corrective Review");
-        gs2.common.closeWfTask(capId, "Corrective Review", "Additional Information Received", "Additional Information Received", "");
-        aa.workflow.adjustTask(capId, "Corrective Review", "Y", "N", null, null);
+        gs2.wf.activateTask(capId, "Correction Review");
+        gs2.common.closeWfTask(capId, "Correction Review", "Additional Information Received", "Additional Information Received", "");
+        aa.workflow.adjustTask(capId, "Correction Review", "Y", "N", null, null);
         demoSendApplicationSubmission();
         revokeAppACAEdit(capId);
     }
