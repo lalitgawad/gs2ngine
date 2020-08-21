@@ -111,7 +111,7 @@ function demoSendAdditinalInfoRequiredForApp(comments) {
         var actByUserEmail = actUserObj.getEmail();
         var actByUserAgency = "DHS"; //actUserObj.getAgencyCode();
         var sBureauName = "Bureau of Human Services Licensing";
-        if(wfComment) {
+        if (wfComment) {
             comments = wfComment + "";
         }
 
@@ -428,40 +428,40 @@ function demoSendExpirationNotice(renewalCapId) {
             var b1Exp = b1ExpResult.getOutput();
             var expDate = b1Exp.getExpDate();
             if (expDate) b1ExpDate = expDate.getMonth() + "/" + expDate.getDayOfMonth() + "/" + expDate.getYear();
-            
-            if(renewalCapId) {
+
+            if (renewalCapId) {
                 renewalAltIDString = renewalCapId.getCustomID();
             } else {
                 var renewalCapArray = aa.cap.getProjectByMasterID(capId, "Renewal", "").getOutput();
-                if(renewalCapArray.length > 0){
+                if (renewalCapArray.length > 0) {
                     renewalCapId = renewalCapArray[0].getCapID();
                     var id1 = renewalCapId.getID1();
                     var id2 = renewalCapId.getID2();
                     var id3 = renewalCapId.getID3();
-                    
+
                     var result = aa.cap.getCapIDModel(id1, id2, id3).getOutput();
                     renewalAltIDString = renewalCapId.getCustomID();
                 }
             }
         }
-        
+
         logDebug(b1ExpDate);
-        if(renewalAltIDString) {
-            
+        if (renewalAltIDString) {
+
         } else {
             renewalAltIDString = "Record";
         }
         logDebug(renewalAltIDString);
-        
+
         var acaRecordUrl = demogetACATempRecordURL(acaUrl);
         logDebug(acaRecordUrl);
         var acaRenewalRecordUrl = demogetACARecordURL(acaUrl, renewalCapId);
         logDebug(acaRenewalRecordUrl);
-        
+
         //var emailParams=notifyObj.getEmailParameters();
         var emailParameters = aa.util.newHashtable();
         gs2.notification.getRecordParams4Notification(emailParameters);
-        
+
         addParameter(emailParameters, "$$RecordName$$", recordName);
         addParameter(emailParameters, "$$RecordID$$", capIDString);
         addParameter(emailParameters, "$$RecordType$$", alias);
@@ -496,21 +496,21 @@ function demoSendPocNotice() {
 
         itemCap = capId;
         if (arguments.length == 1) itemCap = arguments[0]; // use cap ID specified in args
-        
+
         var capScriptModel = aa.cap.getCap(itemCap);
         if (capScriptModel.getSuccess()) {
             capType = capScriptModel.getOutput().getCapType();
             alias = capType.alias;
         }
         var altIDString = itemCap.getCustomID();
-        
+
         var acaRecordUrl = demogetACAEditRecordURL(acaUrl, itemCap);
         logDebug(acaRecordUrl);
-        
+
         //var emailParams=notifyObj.getEmailParameters();
         var emailParameters = aa.util.newHashtable();
         gs2.notification.getRecordParams4Notification(emailParameters);
-        
+
         addParameter(emailParameters, "$$RecordName$$", recordName);
         addParameter(emailParameters, "$$RecordID$$", capIDString);
         addParameter(emailParameters, "$$PocRecordId$$", altIDString);
@@ -527,4 +527,111 @@ function demoSendPocNotice() {
     catch (err) {
         logDebug("WARNING: demoSendPocNotice:" + err.message);
     }
+}
+
+
+function democreateAddressUsingFacilityContact() {
+    logDebug("ENTER: democreateAddressUsingFacilityContact");
+    try {
+        var propAddr = {};
+
+        var contactMap = aa.util.newHashMap();
+
+        var capContactResult = aa.people.getCapContactByCapID(capId);
+        if (capContactResult.getSuccess()) {
+            var contacts = capContactResult.getOutput();
+            for (c in contacts) {
+                var capContactScriptModel = contacts[c];
+                //gs2.common.debugObject(capContactScriptModel);
+
+                var capContactModel = capContactScriptModel.getCapContactModel();
+                //logDebug("capContactModel.getContactType() " + capContactModel.getContactType());
+                if (capContactModel.getContactType() == "Facility") {
+                    var fvContactAddress = demogetLatestContactAddress(capContactModel, "Mailing");
+
+                    gs2.common.debugObject(fvContactAddress)
+
+                    var sSteetNum = gs2.common.isNull(fvContactAddress.getHouseNumberStart() + "", "") + "";
+                    var sPreDirection = gs2.common.isNull(fvContactAddress.getStreetDirection() + "", "") + "";
+                    var sSteetName = gs2.common.isNull(fvContactAddress.getAddressLine1() + "", "") + "";
+                    var sSteetType = gs2.common.isNull(fvContactAddress.getStreetSuffixDirection() + "", "") + "";
+                    var sPostDirection = gs2.common.isNull(fvContactAddress.getStreetSuffix() + "", "") + "";
+                    var sCity = gs2.common.isNull(fvContactAddress.getCity() + "", "") + "";
+                    var sState = gs2.common.isNull(fvContactAddress.getState() + "", "") + "";
+                    var sZip = gs2.common.isNull(fvContactAddress.getZip() + "", "") + "";
+
+                    propAddr.StreetNo = sSteetNum + "";
+                    propAddr.UnitNumber = "";
+                    propAddr.UnitNumber = "";
+                    propAddr.BuildingNumber = "";
+                    propAddr.StreetName = sSteetName + "";
+                    propAddr.City = sCity + "";
+                    propAddr.State = sState;
+                    propAddr.Zip = sZip + "";
+                    propAddr.StreetSuffix = sPostDirection + "";
+                    propAddr.StreetPrefix = sPreDirection + "";
+                    propAddr.StreetType = sSteetType + "";
+                }
+            }
+        }
+
+        var vAddrModel = aa.proxyInvoker.newInstance("com.accela.aa.aamain.address.AddressModel").getOutput();
+        //debugObject(vAddrModel);
+        vAddrModel.setCapID(capId);
+        vAddrModel.setPrimaryFlag("Y")
+        if (isNull(propAddr.StreetNo + "", "") != "") {
+            vAddrModel.setHouseNumberStart(parseInt(propAddr.StreetNo + ""));
+        }
+        //vAddrModel.setUnitStart(propAddr.UnitNumber + "");
+        //vAddrModel.setUnitEnd(propAddr.UnitNumber + "");
+        vAddrModel.setStreetSuffix(propAddr.StreetSuffix + "");
+        vAddrModel.setStreetDirection(propAddr.StreetPrefix + "");
+        vAddrModel.setStreetSuffixdirection(propAddr.StreetType + "");
+        //vAddrModel.setLevelPrefix(propAddr.BuildingNumber + "");
+        vAddrModel.setStreetName(propAddr.StreetName + "");
+        vAddrModel.setCity(propAddr.City + "");
+        vAddrModel.setState(propAddr.State + "");
+        vAddrModel.setZip(propAddr.Zip + "")
+        vAddrModel.setServiceProviderCode(aa.getServiceProviderCode());
+        vAddrModel.setAuditDate(new java.util.Date());
+        vAddrModel.setAuditID(currentUserID);
+        vAddrModel.setAuditStatus("A");
+
+        var s = aa.address.createAddress(vAddrModel);
+    }
+    catch (err) {
+        logDebug("**WARNING in democreateAddressUsingFacilityContact:" + err.message);
+    }
+    logDebug("EXIT: democreateAddressUsingFacilityContact");
+}
+
+function demogetLatestContactAddress(iContact) {
+    var useAddressType = false;
+    var addressType;
+
+    if (arguments.length == 2) {
+        addressType = arguments[1];
+        useAddressType = true;
+    }
+
+    var fvContactAddress;
+    var fvAddressResult = aa.address.getContactAddressListByCapContact(iContact).getOutput();
+    var latestDate = new Date(0);
+
+    if (fvAddressResult && fvAddressResult.length > 0) {
+        for (rr in fvAddressResult) {
+            addressAuditDate = new Date(fvAddressResult[rr].getAuditDate().getEpochMilliseconds());
+
+            if (addressAuditDate > latestDate && fvAddressResult[rr].getExpirationDate() == null && (!useAddressType || addressType == fvAddressResult[rr].getContactAddressModel().getAddressType())) {
+                latestDate = new Date(addressAuditDate);
+                fvContactAddress = fvAddressResult[rr];
+            }
+        }
+
+        if (fvContactAddress) {
+            var fvContactAddressModel = fvContactAddress.contactAddressModel;
+            logDebug("Latest " + fvContactAddressModel.getAddressType() + " address found (Address ID " + fvContactAddress.addressID + ") for contact " + iContact.getPeople().contactSeqNumber + " ref num " + iContact.refContactNumber + " with audit date " + addressAuditDate);
+        }
+    }
+    return fvContactAddress;
 }
