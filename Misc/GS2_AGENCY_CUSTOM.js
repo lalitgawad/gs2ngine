@@ -12,8 +12,12 @@ function demogetEmailRecipients(contactTypeArray) {
                 if (gs2.common.exists(contactType, contactTypeArray)) {
                     var contact = contactMap.get(contactType)
                     //logDebug("contactEmail>>> " + contact.getEmail());
-                    if (contact.getEmail())
-                        sendList.push(contact.getEmail());
+                    if (contact.getEmail()) {
+                        var sEmail = contact.getEmail() + "";
+                        if (!gs2.common.exists(sEmail, sendList)) {
+                            sendList.push(contact.getEmail());
+                        }
+                    }
                 }
             }
         }
