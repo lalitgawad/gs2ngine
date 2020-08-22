@@ -22,7 +22,7 @@ if (objWTUA) logDebug("objWTUA: " + objWTUA);
 if (matches(wfStatus, "Additional Information Required")) {
     appSpecificLogic = true;
     //priya
-    sendAdditionalInfoEmail();
+    //sendAdditionalInfoEmail();
 }  
 
 
