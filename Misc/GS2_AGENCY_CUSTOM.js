@@ -28,10 +28,6 @@ function demogetEmailRecipients(contactTypeArray) {
     } else {
         emailStr = emailList;
     }
-    //logDebug("2. emailStr>>> " + emailStr)
-
-    emailStr = "lalit.gawad@gcomsoft.com";
-    //logDebug("3. emailStr>>> " + emailStr)
 
     return emailStr;
 }
@@ -519,6 +515,9 @@ function demoSendPocNotice() {
         addParameter(emailParameters, "$$acaPocRecordUrl$$", acaRecordUrl);
         addParameter(emailParameters, "$$signage$$", signage);
 
+        var sPocDueDate = dateAdd(new Date(),15);
+        addParameter(emailParameters, "$$PocDueDate$$", sPocDueDate);
+
         //logDebug("sendTo :::> "+sendTo+" appReport :::> "+appReport+" sysFromEmail :::> "+sysFromEmail+" emailParams :::> "+emailParameters)
         //emailSent = gcomSendNotification(sysFromEmail, sendTo, "", templateName, emailParameters, appReport);
         emailSent = demoSendEmailNotification(sysFromEmail, sendTo, "", templateName, emailParameters, appReport);
@@ -635,3 +634,51 @@ function demogetLatestContactAddress(iContact) {
     }
     return fvContactAddress;
 }
+
+function demoSendPocEvidence() {
+    try {
+        var notificationType = "GS2_POC_EVIDENCE";
+        var templateName = "GS2_POC_EVIDENCE";
+        var alternateCapId = capId;
+        var appReport = null;
+        var cntArray = ["Facility", "Applicant"];
+        var sendTo = demogetEmailRecipients(cntArray);
+        var signage = "Bureau of Human Services Licensing";
+        var alias = ""
+        var recordName = "";
+
+        itemCap = capId;
+        if (arguments.length == 1) itemCap = arguments[0]; // use cap ID specified in args
+
+        var capScriptModel = aa.cap.getCap(itemCap);
+        if (capScriptModel.getSuccess()) {
+            capType = capScriptModel.getOutput().getCapType();
+            alias = capType.alias;
+        }
+        var altIDString = itemCap.getCustomID();
+
+        var acaRecordUrl = demogetACARecordURL(acaUrl, itemCap);
+        logDebug(acaRecordUrl);
+        
+        //var emailParams=notifyObj.getEmailParameters();
+        var emailParameters = aa.util.newHashtable();
+        gs2.notification.getRecordParams4Notification(emailParameters);
+
+        addParameter(emailParameters, "$$RecordName$$", recordName);
+        addParameter(emailParameters, "$$RecordID$$", capIDString);
+        addParameter(emailParameters, "$$PocRecordId$$", altIDString);
+        addParameter(emailParameters, "$$RecordType$$", alias);
+        addParameter(emailParameters, "$$acaRecordUrl$$", acaRecordUrl);
+        addParameter(emailParameters, "$$acaPocRecordUrl$$", acaRecordUrl);
+        addParameter(emailParameters, "$$signage$$", signage);
+
+        //logDebug("sendTo :::> "+sendTo+" appReport :::> "+appReport+" sysFromEmail :::> "+sysFromEmail+" emailParams :::> "+emailParameters)
+        //emailSent = gcomSendNotification(sysFromEmail, sendTo, "", templateName, emailParameters, appReport);
+        emailSent = demoSendEmailNotification(sysFromEmail, sendTo, "", templateName, emailParameters, appReport);
+        logDebug("Email Sent -> " + emailSent)
+    }
+    catch (err) {
+        logDebug("WARNING: demoSendPocNotice:" + err.message);
+    }
+}
+
