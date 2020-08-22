@@ -301,10 +301,8 @@ function APP_OBJ(identity, caller) {
             //var user = capModel.getCreatedBy();
             //editCreatedBy(user,pocCapId);
             //editAppName("",pocCapId);
-            copyAppName(capId, vWoCapId);
-            copyAddresses(capId, vWoCapId);
-            copyParcels(capId, vWoCapId);
-            copyOwner(capId, vWoCapId);
+            copyAppName(capId, pocCapId);
+            copyAddresses(capId, pocCapId);
             
             gs2.user.linkPublicUserToApplication();
             sendAppToACA4Edit(pocCapId);
@@ -324,10 +322,8 @@ function APP_OBJ(identity, caller) {
             gs2.rec.updateAppStatus("Active","", licCapId);
             copyASIFields(capId, licCapId);
             updateExpirationDateFromToday(licCapId, new Date());
-            copyAppName(capId, vWoCapId);
-            copyAddresses(capId, vWoCapId);
-            copyParcels(capId, vWoCapId);
-            copyOwner(capId, vWoCapId);
+            copyAppName(capId, licCapId);
+            copyAddresses(capId, licCapId);
             gs2.user.linkPublicUserToApplication();
 
             //editAppName("",licCapId);
