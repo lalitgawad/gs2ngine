@@ -295,16 +295,16 @@ function APP_OBJ(identity, caller) {
         {
             var pocCapId = gs2.rec.createChild("Licenses","Plan of Correction","NA","NA");
             gs2.rec.updateAppStatus("Awaiting Provider Response","", pocCapId);
-            
-            //var capModelScript = aa.cap.getCap(capId).getOutput();
-            //var capModel = capModelScript.getCapModel();
-            //var user = capModel.getCreatedBy();
-            //editCreatedBy(user,pocCapId);
-            //editAppName("",pocCapId);
-            copyAppName(capId, pocCapId);
+            editAppName("",pocCapId);
+            //gs2.rec.copyAppName(capId, pocCapId);
+            //copy appname makes the app name of the POC to undefined, so setting it to blank
             copyAddresses(capId, pocCapId);
             
             gs2.user.linkPublicUserToApplication();
+            var capModelScript = aa.cap.getCap(capId).getOutput();
+            var capModel = capModelScript.getCapModel();
+            var user = capModel.getCreatedBy();
+            editCreatedBy(user,pocCapId);
             sendAppToACA4Edit(pocCapId);
             
             var pocItemsArr = this.getPOCItems();
@@ -314,6 +314,7 @@ function APP_OBJ(identity, caller) {
             gs2.wf.deActivateWfTask(capId, "Application Issuance");
             //var comments = "Deficiency Report Issued - please submit plan of correction.";
             //demoSendAdditinalInfoRequiredForApp(comments);
+            gs2.common.closeWfTask(pocCapId, "Correction Review", "Additional Information Required", "Additional Information Required", "");
             demoSendPocNotice(pocCapId);
         }
         else if(wfTask == "Application Issuance" && wfStatus == "Application Approved - Issue Permit")

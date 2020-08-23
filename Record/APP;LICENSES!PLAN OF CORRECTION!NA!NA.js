@@ -133,45 +133,14 @@ function APP_OBJ(identity, caller) {
      * Document upload after Delegator to call local function(s) for record specific before logic
      */
     this.DuaDelegator = function() {
-        gs2.wf.activateTask(capId, "Corrective Review");
-        gs2.common.closeWfTask(capId, "Corrective Review", "Additional Information Received", "Additional Information Received", "");
-        aa.workflow.adjustTask(capId, "Corrective Review", "Y", "N", null, null);
-        //editCapConditionStatus("Addtional Information Required","Additional Information Required","Condition Met","Not Applied");
-    }
-
-    this.activatePostPermitOnDocUpload = function(){
-        try {
-            var vDocumentModelArray = aa.env.getValue("DocumentModelList");
-            var docupload = false;
-            if (vDocumentModelArray.size() > 0) {
-                for (var index = 0; index < vDocumentModelArray.size(); index++) {
-                    var docName = String(vDocumentModelArray.get(index).getDocCategory());
-                    if (matches(docName, "Construction Plan", "Floor Plan Existing", "Monument Engineered Plan", "Site Plan", "Traffic Plan", "Tree Preservation Plan")){
-                        docupload = true;
-                    }
-                }
-            }
-            if (docupload) {
-                if(isTaskActive("Permit Issued") && isTaskStatus("Permit Issued", "Issued")){
-                    closeTask("Permit Issued", "Post Permit Review Required", "Closed via script", "Closed via script");
-                    activateTask("Post Permit Completeness Review");
-                    updateTask("Post Permit Completeness Review", "Under Review", "Updated by Script", "");
-                    var vDaysDue = this.getDurationDays();;
-                    var updatedDueDate = dateAdd(aa.date.getCurrentDate(), vDaysDue);
-                    var calID = isBusinessCalAssociated("Post Permit Completeness Review", capId);
-                    if (calID != -1) {
-                        updatedDueDate = addBusinessDays(aa.date.getCurrentDate(), vDaysDue, calID);
-                    }
-                    editTaskDueDate("Post Permit Completeness Review", updatedDueDate);
-                    //REVISIT
-                    autoAssign("Post Permit Completeness Review", "COSA/DSD/BLD/PR/NA/ADMIN/NA");
-                    aa.workflow.adjustTask(capId, "Closure", "N", "N", null, null);
-                }
-            }
-        } catch (err) {
-            logDebug("A JavaScript Error occurred: DuaDelegator: " + err.message);
+        if(isActiveTask("Directed POC Review"))
+        {
+            gs2.common.closeWfTask(capId, "Directed POC Review", "Evidence Received", "Evidence Received", "");
+            aa.workflow.adjustTask(capId, "Directed POC Review", "Y", "N", null, null);
+            demoSendPocEvidence();
         }
     }
+
 
     this.GUADelegator = function()
     {
@@ -205,6 +174,7 @@ function APP_OBJ(identity, caller) {
         gs2.wf.activateTask(capId, "Correction Review");
         gs2.common.closeWfTask(capId, "Correction Review", "Additional Information Received", "Additional Information Received", "");
         aa.workflow.adjustTask(capId, "Correction Review", "Y", "N", null, null);
+        aa.workflow.adjustTask(capId, "Directed POC Review", "N", "N", null, null);
         demoSendApplicationSubmission();
         revokeAppACAEdit(capId);
     }
@@ -222,18 +192,7 @@ function APP_OBJ(identity, caller) {
      * CTRCA Delegator to call local function(s) for record specific after logic
      */
     this.CtrcaDelegator = function () {
-        gs2.wf.activateTask(capId, "Corrective Review");
-        gs2.common.closeWfTask(capId, "Corrective Review", "Additional Information Received", "Additional Information Received", "");
-        aa.workflow.adjustTask(capId, "Corrective Review", "Y", "N", null, null);
-        demoSendApplicationSubmission();
-        revokeAppACAEdit(capId);
-    }
-    this.AEADelegator = function(){
-        gs2.wf.activateTask(capId, "Corrective Review");
-        gs2.common.closeWfTask(capId, "Corrective Review", "Additional Information Received", "Additional Information Received", "");
-        aa.workflow.adjustTask(capId, "Corrective Review", "Y", "N", null, null);
-        demoSendApplicationSubmission();
-        revokeAppACAEdit(capId);
+
     }
 
     this.ISHBDelegator = function () {
@@ -289,31 +248,21 @@ function APP_OBJ(identity, caller) {
 
     }
 
-    this.DUADelegator = function () {
-        gs2.wf.activateTask(capId, "Corrective Review");
-        gs2.common.closeWfTask(capId, "Corrective Review", "Additional Information Received", "Additional Information Received", "");
-        aa.workflow.adjustTask(capId, "Corrective Review", "Y", "N", null, null);
-        demoSendApplicationSubmission();
-        revokeAppACAEdit();
-    }
     /**
      * Workflow task update after Delegator to call local function(s) for record specific after logic
      */
     this.WtuaDelegator = function () {
-        if(wfTask == "Correction Review" && wfStatus == "Implementation Complete")
+        if(wfTask == "Directed POC Review" && wfStatus == "Implementation Complete")
         {
             this.resultNonCompliantInspection();
             var pCapId = getParent();
-            gs2.wf.activateTask(pCapId, "Supervisory Review");
-            aa.workflow.adjustTask(pCapId, "Supervisory Review", "Y", "N", null, null);
+            gs2.common.closeWfTask(capId, "Supervisory Review", "Review Complete", "Supervisory Review Complete", "");
             copyASITable(capId, pCapId, "DIFICIENCY LISTING");
         }
         else if(wfTask == "Correction Review" && wfStatus == "Additional Information Required")
         {
             gs2.wf.deActivateWfTask(capId, "Correction Review");
             sendAppToACA4Edit();
-            //gs2.rec.addStdConditionWithComments("Licensing", "Addtional Information Required", "Additional Information Required","Additional Information Required" , wfComment , null);
-            //addSTDConditionX("Addtional Information Required", "Additional Information Required", capId);
         }
     }
 
@@ -438,4 +387,22 @@ function revokeAppACAEdit() {
     var vCap = aa.cap.getCap(vCapID).getOutput().getCapModel();
     vCap.setCapClass("COMPLETE");
     aa.cap.editCapByPK(vCap);
+}
+function isActiveTask(taskName)
+{
+    var vCapID = capId;
+    if (arguments.length > 1)
+        vCapID = arguments[1];
+
+    var vWFResult = aa.workflow.getTasks(vCapID);
+    if (vWFResult.getSuccess())
+    {
+        var vWF = vWFResult.getOutput();
+        for (var vCounter in vWF)
+        {
+            if ((vWF[vCounter].getTaskDescription() == taskName) && (vWF[vCounter].activeFlag == 'Y'))
+                return true;
+        }
+    }
+    return false;
 }
