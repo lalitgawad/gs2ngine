@@ -686,3 +686,52 @@ function demoSendPocEvidence() {
     }
 }
 
+function demoSendAdditinalInfoRequiredForPoc(comments) {
+    try {
+        var notificationType = "GS2_ADDITIONAL_INFORMATION_REQUIRED";
+        var templateName = "GS2_ADDITIONAL_INFORMATION_REQUIRED";
+        var alternateCapId = capId;
+        var appReport = null;
+        var cntArray = ["Applicant"]
+        var sendTo = demogetEmailRecipients(cntArray);
+
+        var capScriptModel = aa.cap.getCap(capId);
+        var alias = ""
+        if (capScriptModel.getSuccess()) {
+            capType = capScriptModel.getOutput().getCapType();
+            alias = capType.alias;
+        }
+
+        var actUserObj = aa.person.getUser(currentUserID).getOutput();
+        var actByUserName = actUserObj.getFirstName() + ' ' + actUserObj.getLastName();
+        var actByUserEmail = actUserObj.getEmail();
+        var actByUserAgency = "DHS"; //actUserObj.getAgencyCode();
+        var sBureauName = "Bureau of Human Services Licensing";
+        if (wfComment) {
+            comments = wfComment + "";
+        }
+
+        var acaRecordUrl = demogetACAEditRecordURL(acaUrl);
+        logDebug(acaRecordUrl);
+
+        var emailParameters = aa.util.newHashtable();
+        gs2.notification.getRecordParams4Notification(emailParameters);
+
+        addParameter(emailParameters, "$$recordID$$", capIDString);
+        //addParameter(emailParameters, "$$recordType$$", recordType);
+        addParameter(emailParameters, "$$recordType$$", alias);
+        //addParameter(emailParameters, "$$status$$",status);
+        addParameter(emailParameters, "$$BureauName$$ ", sBureauName);
+        addParameter(emailParameters, "$$AgencyName$$", actByUserAgency);
+        addParameter(emailParameters, "$$acaRecordUrl$$", acaRecordUrl);
+        addParameter(emailParameters, "$$wfComment$$", comments);
+
+        //logDebug("sendTo :::> "+sendTo+" appReport :::> "+appReport+" sysFromEmail :::> "+sysFromEmail+" emailParams :::> "+emailParameters)
+        //emailSent = gcomSendNotification(sysFromEmail, sendTo, "", templateName, emailParameters, appReport);
+        emailSent = demoSendEmailNotification(sysFromEmail, sendTo, "", templateName, emailParameters, appReport);
+        logDebug("Email Sent -> " + emailSent)
+    }
+    catch (err) {
+        logDebug("WARNING: demoSendAdditinalInfoRequiredForApp:" + err.message);
+    }
+}

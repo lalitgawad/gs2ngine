@@ -144,7 +144,9 @@ function APP_OBJ(identity, caller) {
         if(isActiveTask("Directed POC Review"))
         {
             gs2.common.closeWfTask(capId, "Directed POC Review", "Evidence Received", "Evidence Received", "");
+            gs2.wf.activateTask(capId, "Directed POC Review");
             aa.workflow.adjustTask(capId, "Directed POC Review", "Y", "N", null, null);
+            gs2.rec.updateAppStatus("Evidence Received","", capId);
         }
     }
 
@@ -178,15 +180,16 @@ function APP_OBJ(identity, caller) {
      * ASA Delegator to call local function(s) for record specific after logic
      */
     this.AsaDelegator = function () {
-        if(isActiveTask("Correction Review") && !doesStatusExistInTaskHistory("Correction Review", "Additional Information Required"))
+        if(isActiveTask("Correction Review") && !doesStatusExistInTaskHistory("Correction Review", "Additional Information Requested"))
         {
-            gs2.wf.activateTask(capId, "Correction Review");
             gs2.common.closeWfTask(capId, "Correction Review", "Additional Information Received", "Additional Information Received", "");
+            gs2.wf.activateTask(capId, "Correction Review");
             aa.workflow.adjustTask(capId, "Correction Review", "Y", "N", null, null);
             aa.workflow.adjustTask(capId, "Directed POC Review", "N", "N", null, null);
+            revokeAppACAEdit(capId);
             demoSendApplicationSubmission();
         }
-        //revokeAppACAEdit(capId);
+        
     }
 
     this.AsiuaDelegator = function () {
@@ -266,17 +269,23 @@ function APP_OBJ(identity, caller) {
         {
             this.resultNonCompliantInspection();
             var pCapId = getParent();
-            gs2.common.closeWfTask(capId, "Supervisory Review", "Review Complete", "Supervisory Review Complete", "");
+            gs2.common.closeWfTask(pCapId, "Supervisory Review", "Review Complete", "Supervisory Review Complete", "");
+            //aa.workflow.adjustTask(pCapId, "Application Issuance", "Y", "N", null, null);
+
             copyASITable(capId, pCapId, "DIFICIENCY LISTING");
         }
-        else if(wfTask == "Correction Review" && wfStatus == "Additional Information Required")
+        else if(wfTask == "Correction Review" && wfStatus == "Additional Information Requested")
         {
-            gs2.wf.deActivateWfTask(capId, "Correction Review");
+            gs2.rec.updateAppStatus("Awaiting Provider Response","", capId);
+            //gs2.wf.deActivateWfTask(capId, "Correction Review");
             sendAppToACA4Edit();
+            var comments = "Send missing required information"; 
+            demoSendAdditinalInfoRequiredForPoc(comments);
         }
         else if(wfTask == "Correction Review" && wfStatus == "POC Accepted")
         {
-            aa.workflow.adjustTask(capId, "Directed POC Review", "N", "N", null, null);
+            //aa.workflow.adjustTask(capId, "Directed POC Review", "Y", "N", null, null);
+            gs2.rec.updateAppStatus("Awaiting for Evidence","", capId);
             demoSendPocEvidence();
             revokeAppACAEdit(capId);
         }

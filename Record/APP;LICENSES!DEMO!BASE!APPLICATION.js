@@ -314,10 +314,11 @@ function APP_OBJ(identity, caller) {
             gs2.wf.deActivateWfTask(capId, "Application Issuance");
             //var comments = "Deficiency Report Issued - please submit plan of correction.";
             //demoSendAdditinalInfoRequiredForApp(comments);
-            
+
             gs2.common.closeWfTask(pocCapId, "Correction Review", "Pending Review", "Pending Review", "");
-            aa.workflow.adjustTask(capId, "Correction Review", "Y", "N", null, null);
-            aa.workflow.adjustTask(capId, "Directed POC Review", "N", "N", null, null);
+            aa.workflow.adjustTask(pocCapId, "Correction Review", "Y", "N", null, null);
+            aa.workflow.adjustTask(pocCapId, "Directed POC Review", "N", "N", null, null);
+
 
             demoSendPocNotice(pocCapId);
         }
