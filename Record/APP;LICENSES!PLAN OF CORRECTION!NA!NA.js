@@ -133,11 +133,18 @@ function APP_OBJ(identity, caller) {
      * Document upload after Delegator to call local function(s) for record specific before logic
      */
     this.DuaDelegator = function() {
+        /*
+        if(isActiveTask("Correction Review"))
+        {
+            gs2.common.closeWfTask(capId, "Correction Review", "Additional Information Received", "Additional Information Received", "");
+            aa.workflow.adjustTask(capId, "Correction Review", "Y", "N", null, null);
+            aa.workflow.adjustTask(capId, "Directed POC Review", "N", "N", null, null);
+        }
+        */
         if(isActiveTask("Directed POC Review"))
         {
             gs2.common.closeWfTask(capId, "Directed POC Review", "Evidence Received", "Evidence Received", "");
             aa.workflow.adjustTask(capId, "Directed POC Review", "Y", "N", null, null);
-            demoSendPocEvidence();
         }
     }
 
@@ -171,12 +178,15 @@ function APP_OBJ(identity, caller) {
      * ASA Delegator to call local function(s) for record specific after logic
      */
     this.AsaDelegator = function () {
-        gs2.wf.activateTask(capId, "Correction Review");
-        gs2.common.closeWfTask(capId, "Correction Review", "Additional Information Received", "Additional Information Received", "");
-        aa.workflow.adjustTask(capId, "Correction Review", "Y", "N", null, null);
-        aa.workflow.adjustTask(capId, "Directed POC Review", "N", "N", null, null);
-        demoSendApplicationSubmission();
-        revokeAppACAEdit(capId);
+        if(isActiveTask("Correction Review") && !doesStatusExistInTaskHistory("Correction Review", "Additional Information Required"))
+        {
+            gs2.wf.activateTask(capId, "Correction Review");
+            gs2.common.closeWfTask(capId, "Correction Review", "Additional Information Received", "Additional Information Received", "");
+            aa.workflow.adjustTask(capId, "Correction Review", "Y", "N", null, null);
+            aa.workflow.adjustTask(capId, "Directed POC Review", "N", "N", null, null);
+            demoSendApplicationSubmission();
+        }
+        //revokeAppACAEdit(capId);
     }
 
     this.AsiuaDelegator = function () {
@@ -264,6 +274,13 @@ function APP_OBJ(identity, caller) {
             gs2.wf.deActivateWfTask(capId, "Correction Review");
             sendAppToACA4Edit();
         }
+        else if(wfTask == "Correction Review" && wfStatus == "POC Accepted")
+        {
+            aa.workflow.adjustTask(capId, "Directed POC Review", "N", "N", null, null);
+            demoSendPocEvidence();
+            revokeAppACAEdit(capId);
+        }
+
     }
 
     /**
@@ -405,4 +422,23 @@ function isActiveTask(taskName)
         }
     }
     return false;
+}
+function doesStatusExistInTaskHistory(tName, tStatus) {
+
+    histResult = aa.workflow.getWorkflowHistory(capId, tName, null);
+    if (histResult.getSuccess()) {
+        var taskHistArr = histResult.getOutput();
+        for (var xx in taskHistArr) {
+            taskHist = taskHistArr[xx];
+            if (tStatus.equals(taskHist.getDisposition()))
+                return true;
+        }
+        return false;
+
+    }
+    else {
+        logDebug("Error getting task history : " + histResult.getErrorMessage());
+    }
+    return false;
+
 }
