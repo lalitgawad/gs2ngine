@@ -229,28 +229,39 @@ function APP_OBJ(identity, caller) {
     this.IRSADelegator = function () {
         if(inspResult == "Compliant - Finalized")
         {
-            gs2.common.closeWfTask(capId, "Inspection", "Compliant", inspComment , "");
-            gs2.rec.updateAppStatus("Compliant - Finalized","");
+            gs2.common.closeWfTask(capId, "Inspection", "Pending Inspection Review", inspComment , "");
+            aa.workflow.adjustTask(capId, "Inspection", "Y", "N", null, null);
+            //gs2.common.closeWfTask(capId, "Inspection", "Compliant", inspComment , "");
+            //gs2.rec.updateAppStatus("Compliant - Finalized","");
 
         }
         else if(inspResult == "Non - Compliant")
         {
-            gs2.common.closeWfTask(capId, "Inspection", "Non - Compliant", inspComment , "");
-            gs2.rec.updateAppStatus("Non - Compliant","");
+            gs2.common.closeWfTask(capId, "Inspection", "Pending Inspection Review", inspComment , "");
+            aa.workflow.adjustTask(capId, "Inspection", "Y", "N", null, null);
+            //gs2.common.closeWfTask(capId, "Inspection", "Non - Compliant", inspComment , "");
+            //gs2.rec.updateAppStatus("Non - Compliant","");
+            var pocItemsArr = this.getPOCItems();
+            addASITable("DIFICIENCY LISTING", pocItemsArr);
         }
     }
     this.IRMADelegator = function ()
     {
         if(inspResult == "Compliant - Finalized")
         {
-            gs2.common.closeWfTask(capId, "Inspection", "Compliant", inspComment , "");
-            gs2.rec.updateAppStatus("Compliant - Finalized","");
-
+            gs2.common.closeWfTask(capId, "Inspection", "Pending Inspection Review", inspComment , "");
+            aa.workflow.adjustTask(capId, "Inspection", "Y", "N", null, null);
+            //gs2.common.closeWfTask(capId, "Inspection", "Compliant", inspComment , "");
+            //gs2.rec.updateAppStatus("Compliant - Finalized","");
         }
         else if(inspResult == "Non - Compliant")
         {
-            gs2.common.closeWfTask(capId, "Inspection", "Non - Compliant", inspComment , "");
-            gs2.rec.updateAppStatus("Non - Compliant","");
+            gs2.common.closeWfTask(capId, "Inspection", "Pending Inspection Review", inspComment , "");
+            aa.workflow.adjustTask(capId, "Inspection", "Y", "N", null, null);
+            //gs2.common.closeWfTask(capId, "Inspection", "Non - Compliant", inspComment , "");
+            //gs2.rec.updateAppStatus("Non - Compliant","");
+            var pocItemsArr = this.getPOCItems();
+            addASITable("DIFICIENCY LISTING", pocItemsArr);
         }
     }
 
@@ -295,9 +306,7 @@ function APP_OBJ(identity, caller) {
         {
             var pocCapId = gs2.rec.createChild("Licenses","Plan of Correction","NA","NA");
             gs2.rec.updateAppStatus("Awaiting Provider Response","", pocCapId);
-            editAppName("",pocCapId);
-            //gs2.rec.copyAppName(capId, pocCapId);
-            //copy appname makes the app name of the POC to undefined, so setting it to blank
+            gs2.rec.copyAppName(capId, pocCapId);
             copyAddresses(capId, pocCapId);
             
             gs2.user.linkPublicUserToApplication();
@@ -307,38 +316,34 @@ function APP_OBJ(identity, caller) {
             editCreatedBy(user,pocCapId);
             sendAppToACA4Edit(pocCapId);
             
-            var pocItemsArr = this.getPOCItems();
-            addASITable("DIFICIENCY LISTING", pocItemsArr, pocCapId);
+            //var pocItemsArr = this.getPOCItems();
+            //addASITable("DIFICIENCY LISTING", pocItemsArr, pocCapId);
+            copyASITable(capId, pocCapId, "DIFICIENCY LISTING");
 
             gs2.wf.deActivateWfTask(capId, "Supervisory Review");
             gs2.wf.deActivateWfTask(capId, "Application Issuance");
-            //var comments = "Deficiency Report Issued - please submit plan of correction.";
-            //demoSendAdditinalInfoRequiredForApp(comments);
 
             gs2.common.closeWfTask(pocCapId, "Correction Review", "Pending Review", "Pending Review", "");
             aa.workflow.adjustTask(pocCapId, "Correction Review", "Y", "N", null, null);
             aa.workflow.adjustTask(pocCapId, "Directed POC Review", "N", "N", null, null);
 
-
             demoSendPocNotice(pocCapId);
         }
-        else if(wfTask == "Application Issuance" && wfStatus == "Application Approved - Issue Permit")
+        else if(wfTask == "Application Issuance" && wfStatus == ("Application Approved - Issue Permit" || wfStatus == "Application Approved - Issue License"))
         {
             var licCapId = gs2.rec.createParent(appTypeArray[0],appTypeArray[1],appTypeArray[2],"License");
             gs2.rec.updateAppStatus("Active","", licCapId);
             copyASIFields(capId, licCapId);
             updateExpirationDateFromToday(licCapId, new Date());
-            copyAppName(capId, licCapId);
+            gs2.rec.copyAppName(capId, licCapId);
             copyAddresses(capId, licCapId);
             gs2.user.linkPublicUserToApplication();
 
-            //editAppName("",licCapId);
 			demoSendLicenseIssuance(licCapId);
         }
         else if(wfTask == "Application Review" && wfStatus == "Additional Information Required")
         {
             gs2.wf.deActivateWfTask(capId, "Application Review");
-            //gs2.rec.addStdConditionWithComments("Licensing", "Addtional Information Required", "Additional Information Required","Additional Information Required" , wfComment , null);
             addSTDConditionX("Addtional Information Required", "Additional Information Required", capId);
 			var comments = "Send missing required information"; 
 			demoSendAdditinalInfoRequiredForApp(comments);
@@ -350,6 +355,15 @@ function APP_OBJ(identity, caller) {
 			var comments = "Send missing required information"; 
 			demoSendAdditinalInfoRequiredForApp(comments);
         }
+        else if(wfTask == "Inspection" && wfStatus == "Compliant")
+        {
+            gs2.rec.updateAppStatus("Compliant - Finalized","");
+        }
+        else if(wfTask == "Inspection" && wfStatus == "Non - Compliant")
+        {
+            gs2.rec.updateAppStatus("Non - Compliant","");
+        }
+
     }
 
     /**
