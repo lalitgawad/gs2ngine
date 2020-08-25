@@ -316,7 +316,9 @@ gs2.rec = {};
     function copyAppName(ipSrcCapId, ipTrgtCapId) {
         var vSrcCap = aa.cap.getCap(ipSrcCapId).getOutput();
         var capName = vSrcCap.getSpecialText();
-        editAppName(capName, ipTrgtCapId);
+        if (gs2.common.isNull(capName, '') != "") {        
+            editAppName(capName, ipTrgtCapId);
+        }
     }
 
     function getAppTypeArray(ipCapID) {
