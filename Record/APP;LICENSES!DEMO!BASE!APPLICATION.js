@@ -173,9 +173,9 @@ function APP_OBJ(identity, caller) {
             gs2.common.closeWfTask(capId, "Application Intake", "Intake Complete", "Intake Complete", "");
         }
         if (!publicUser) {
-            democreateAddressUsingFacilityContact();
             demoSendApplicationSubmission();
         }
+        democreateAddressUsingFacilityContact();
     }
 
     this.AsiuaDelegator = function () {
@@ -197,7 +197,6 @@ function APP_OBJ(identity, caller) {
             gs2.common.closeWfTask(capId, "Application Intake", "Intake Complete", "Intake Complete", "");
         }
         addApplicantToCap4ACA();
-        democreateAddressUsingFacilityContact();
 		demoSendApplicationSubmission();
     }
 

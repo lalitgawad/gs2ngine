@@ -170,18 +170,17 @@ function APP_OBJ(identity, caller) {
      */
     this.AsaDelegator = function () {
         if (!publicUser) {
-            democreateAddressUsingFacilityContact();
             demoSendComplaintSubmission();
         }
         if(publicUser){
         }
-
+        democreateAddressUsingFacilityContact();
     }
 
     this.AsiuaDelegator = function () {
 
     }
-
+    
     
     this.AsbDelegator = function () {
 
@@ -191,7 +190,6 @@ function APP_OBJ(identity, caller) {
      * CTRCA Delegator to call local function(s) for record specific after logic
      */
     this.CtrcaDelegator = function () {
-        democreateAddressUsingFacilityContact();
         demoSendComplaintSubmission();
     }
 

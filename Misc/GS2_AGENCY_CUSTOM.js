@@ -591,7 +591,7 @@ function democreateAddressUsingFacilityContact() {
         //debugObject(vAddrModel);
         vAddrModel.setCapID(capId);
         vAddrModel.setPrimaryFlag("Y")
-        if (isNull(propAddr.StreetNo + "", "") != "") {
+        if (gs2.common.isNull(propAddr.StreetNo + "", "") != "") {
             vAddrModel.setHouseNumberStart(parseInt(propAddr.StreetNo + ""));
         }
         //vAddrModel.setUnitStart(propAddr.UnitNumber + "");
@@ -603,6 +603,7 @@ function democreateAddressUsingFacilityContact() {
         vAddrModel.setStreetName(propAddr.StreetName + "");
         vAddrModel.setCity(propAddr.City + "");
         vAddrModel.setState(propAddr.State + "");
+        vAddrModel.setResState(propAddr.State + "");
         vAddrModel.setZip(propAddr.Zip + "")
         vAddrModel.setServiceProviderCode(aa.getServiceProviderCode());
         vAddrModel.setAuditDate(new java.util.Date());
@@ -747,7 +748,15 @@ function demoSendAdditinalInfoRequiredForPoc(comments) {
 function getCitationReport() {
     var reports = new Array();
     if(false) {
+        var rParams = aa.util.newHashMap();
+        rParams.put("RECORD_ID", capIDString);
+        rParams.put("Contact Type", "Facility");
+        var rFile = gs2.util.generateReport(capId, "License Form", "Licenses", rParams);
+        logDebug(rFile);
         
+        if (rFile) {
+            reports.push(rFile);
+        }
     } else {
         //HardCode Saved With Record
         var docRecNum = "REC20-00000-0004S";
@@ -764,7 +773,15 @@ function getCertificateReport() {
     var reports = new Array();
 
     if(false) {
+        var rParams = aa.util.newHashMap();
+        rParams.put("RECORD_ID", capIDString);
+        rParams.put("Contact Type", "Facility");
+        var rFile = gs2.util.generateReport(capId, "License Form", "Licenses", rParams);
+        logDebug(rFile);
         
+        if (rFile) {
+            reports.push(rFile);
+        }
     } else {
         //HardCode Saved With Record
         var docRecNum = "REC20-00000-0004S";

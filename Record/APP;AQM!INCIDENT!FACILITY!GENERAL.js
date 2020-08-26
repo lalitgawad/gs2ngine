@@ -176,10 +176,10 @@ function APP_OBJ(identity, caller) {
             {
                 aa.cap.createAppHierarchy(capId, vCapID);
             }
-            democreateAddressUsingFacilityContact();
         }
         if(publicUser){
         }
+        democreateAddressUsingFacilityContact();
     }
 
     this.AsiuaDelegator = function () {
@@ -203,7 +203,6 @@ function APP_OBJ(identity, caller) {
         {
             aa.cap.createAppHierarchy(capId, vCapID);
         }
-        democreateAddressUsingFacilityContact();
     }
 
     this.ISHBDelegator = function () {
