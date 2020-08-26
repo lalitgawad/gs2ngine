@@ -246,6 +246,10 @@ function demoSendLicenseIssuance() {
         addParameter(emailParameters, "$$acaRecordUrl$$", acaRecordUrl);
         addParameter(emailParameters, "$$signage$$", signage);
 
+        var repDocArray = getCertificateReport();
+        if(repDocArray.length > 0) {
+            appReport = repDocArray;
+        }
         //logDebug("sendTo :::> "+sendTo+" appReport :::> "+appReport+" sysFromEmail :::> "+sysFromEmail+" emailParams :::> "+emailParameters)
         //emailSent = gcomSendNotification(sysFromEmail, sendTo, "", templateName, emailParameters, appReport);
         emailSent = demoSendEmailNotification(sysFromEmail, sendTo, "", templateName, emailParameters, appReport);
@@ -522,6 +526,11 @@ function demoSendPocNotice() {
         var sPocDueDate = dateAdd(new Date(),15);
         addParameter(emailParameters, "$$PocDueDate$$", sPocDueDate);
 
+        var repDocArray = getCitationReport();
+        if(repDocArray.length > 0) {
+            appReport = repDocArray;
+        }
+
         //logDebug("sendTo :::> "+sendTo+" appReport :::> "+appReport+" sysFromEmail :::> "+sysFromEmail+" emailParams :::> "+emailParameters)
         //emailSent = gcomSendNotification(sysFromEmail, sendTo, "", templateName, emailParameters, appReport);
         emailSent = demoSendEmailNotification(sysFromEmail, sendTo, "", templateName, emailParameters, appReport);
@@ -734,4 +743,36 @@ function demoSendAdditinalInfoRequiredForPoc(comments) {
     catch (err) {
         logDebug("WARNING: demoSendAdditinalInfoRequiredForApp:" + err.message);
     }
+}
+function getCitationReport() {
+    var reports = new Array();
+    if(false) {
+        
+    } else {
+        //HardCode Saved With Record
+        var docRecNum = "REC20-00000-0004S";
+        var docCapId = aa.cap.getCapID(docRecNum).getOutput();
+        var docs = gs2.doc.getAttachedDocumentByCategory("Executive summary", docCapId);
+        var reports = new Array();
+        for (r in docs) {
+            reports.push(docs[r]);
+        }
+    }
+    return reports;
+}
+function getCertificateReport() {
+    var reports = new Array();
+
+    if(false) {
+        
+    } else {
+        //HardCode Saved With Record
+        var docRecNum = "REC20-00000-0004S";
+        var docCapId = aa.cap.getCapID(docRecNum).getOutput();
+        var docs = gs2.doc.getAttachedDocumentByCategory("Citation", docCapId);
+        for (r in docs) {
+            reports.push(docs[r]);
+        }
+    }
+    return reports;
 }
