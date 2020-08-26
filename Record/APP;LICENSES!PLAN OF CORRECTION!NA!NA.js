@@ -180,7 +180,16 @@ function APP_OBJ(identity, caller) {
      * ASA Delegator to call local function(s) for record specific after logic
      */
     this.AsaDelegator = function () {
-        if(isActiveTask("Correction Review") && !doesStatusExistInTaskHistory("Correction Review", "Additional Information Requested"))
+        if(isActiveTask("Correction Review") && !doesStatusExistInTaskHistory("Correction Review", "Pending review"))
+        {
+            gs2.common.closeWfTask(capId, "Correction Review", "Pending review", "Pending review", "");
+            gs2.wf.activateTask(capId, "Correction Review");
+            aa.workflow.adjustTask(capId, "Correction Review", "Y", "N", null, null);
+            aa.workflow.adjustTask(capId, "Directed POC Review", "N", "N", null, null);
+            revokeAppACAEdit(capId);
+            demoSendApplicationSubmission();
+        }
+        else if(isActiveTask("Correction Review") && !doesStatusExistInTaskHistory("Correction Review", "Additional Information Requested"))
         {
             gs2.common.closeWfTask(capId, "Correction Review", "Additional Information Received", "Additional Information Received", "");
             gs2.wf.activateTask(capId, "Correction Review");

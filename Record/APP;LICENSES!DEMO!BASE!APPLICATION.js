@@ -141,7 +141,7 @@ function APP_OBJ(identity, caller) {
             aa.workflow.adjustTask(capId, "Inspection", "Y", "N", null, null);
             aa.workflow.adjustTask(capId, "Supervisory Review", "N", "N", null, null);
         }
-        else
+        else if(doesStatusExistInTaskHistory("Application Review", "Additional Information Required"))
         {
             gs2.common.closeWfTask(capId, "Application Review", "Additional Information Received", "Additional Information Received", "");
             gs2.wf.activateTask(capId, "Application Review");
@@ -231,6 +231,7 @@ function APP_OBJ(identity, caller) {
         {
             gs2.common.closeWfTask(capId, "Inspection", "Pending Inspection Review", inspComment , "");
             aa.workflow.adjustTask(capId, "Inspection", "Y", "N", null, null);
+            aa.workflow.adjustTask(capId, "Supervisory Review", "N", "N", null, null);
             //gs2.common.closeWfTask(capId, "Inspection", "Compliant", inspComment , "");
             //gs2.rec.updateAppStatus("Compliant - Finalized","");
 
@@ -239,6 +240,7 @@ function APP_OBJ(identity, caller) {
         {
             gs2.common.closeWfTask(capId, "Inspection", "Pending Inspection Review", inspComment , "");
             aa.workflow.adjustTask(capId, "Inspection", "Y", "N", null, null);
+            aa.workflow.adjustTask(capId, "Supervisory Review", "N", "N", null, null);
             //gs2.common.closeWfTask(capId, "Inspection", "Non - Compliant", inspComment , "");
             //gs2.rec.updateAppStatus("Non - Compliant","");
             var pocItemsArr = this.getPOCItems();
@@ -251,6 +253,7 @@ function APP_OBJ(identity, caller) {
         {
             gs2.common.closeWfTask(capId, "Inspection", "Pending Inspection Review", inspComment , "");
             aa.workflow.adjustTask(capId, "Inspection", "Y", "N", null, null);
+            aa.workflow.adjustTask(capId, "Supervisory Review", "N", "N", null, null);
             //gs2.common.closeWfTask(capId, "Inspection", "Compliant", inspComment , "");
             //gs2.rec.updateAppStatus("Compliant - Finalized","");
         }
@@ -258,6 +261,7 @@ function APP_OBJ(identity, caller) {
         {
             gs2.common.closeWfTask(capId, "Inspection", "Pending Inspection Review", inspComment , "");
             aa.workflow.adjustTask(capId, "Inspection", "Y", "N", null, null);
+            aa.workflow.adjustTask(capId, "Supervisory Review", "N", "N", null, null);  
             //gs2.common.closeWfTask(capId, "Inspection", "Non - Compliant", inspComment , "");
             //gs2.rec.updateAppStatus("Non - Compliant","");
             var pocItemsArr = this.getPOCItems();
@@ -329,7 +333,7 @@ function APP_OBJ(identity, caller) {
 
             demoSendPocNotice(pocCapId);
         }
-        else if(wfTask == "Application Issuance" && wfStatus == ("Application Approved - Issue Permit" || wfStatus == "Application Approved - Issue License"))
+        else if(wfTask == "Application Issuance" && (wfStatus == "Application Approved - Issue Permit" || wfStatus == "Application Approved - Issue License"))
         {
             var licCapId = gs2.rec.createParent(appTypeArray[0],appTypeArray[1],appTypeArray[2],"License");
             gs2.rec.updateAppStatus("Active","", licCapId);
@@ -621,4 +625,59 @@ function setLicExpirationDate(itemCap) {
 
     return true;
 
+}
+function copyASITable(pFromCapId, pToCapId, tableName) {
+    var itemCap = pFromCapId;
+
+    var gm = aa.appSpecificTableScript.getAppSpecificTableGroupModel(itemCap).getOutput();
+    var ta = gm.getTablesArray()
+    var tai = ta.iterator();
+    var tableArr = new Array();
+    var ignoreArr = new Array();
+
+    while (tai.hasNext()) {
+        var tsm = tai.next();
+
+        var tempObject = new Array();
+        var tempArray = new Array();
+        var tn = tsm.getTableName() + "";
+        var numrows = 0;
+
+        if (tn != tableName)
+            continue;
+
+        if (!tsm.rowIndex.isEmpty()) {
+            var tsmfldi = tsm.getTableField().iterator();
+            var tsmcoli = tsm.getColumns().iterator();
+            var readOnlyi = tsm.getAppSpecificTableModel().getReadonlyField().iterator(); // get Readonly filed
+            var numrows = 1;
+
+            while (tsmfldi.hasNext()) // cycle through fields
+            {
+                if (!tsmcoli.hasNext()) // cycle through columns
+                {
+                    var tsmcoli = tsm.getColumns().iterator();
+                    tempArray.push(tempObject); // end of record
+                    var tempObject = new Array(); // clear the temp obj
+                    numrows++;
+                }
+                var tcol = tsmcoli.next();
+                var tval = tsmfldi.next();
+
+                var readOnly = 'N';
+                if (readOnlyi.hasNext()) {
+                    readOnly = readOnlyi.next();
+                }
+
+                var fieldInfo = new asiTableValObj(tcol.getColumnName(), tval ? tval : "", readOnly);
+                tempObject[tcol.getColumnName()] = fieldInfo;
+                //tempObject[tcol.getColumnName()] = tval;
+            }
+
+            tempArray.push(tempObject); // end of record
+        }
+
+        addASITable(tn, tempArray, pToCapId);
+        logDebug("ASI Table Array : " + tn + " (" + numrows + " Rows)");
+    }
 }
