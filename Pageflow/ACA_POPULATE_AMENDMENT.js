@@ -52,7 +52,7 @@ function getScriptText(vScriptName){
 
 //---------------------------------MAIN LOOP---------------------------------
 
-var cap = aa.env.getValue("	");
+var cap = aa.env.getValue("CapModel");
 var capId = cap.getCapID();
 logDebug(capId.getCustomID());
 var servProvCode = capId.getServiceProviderCode()

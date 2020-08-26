@@ -561,7 +561,7 @@ function democreateAddressUsingFacilityContact() {
                 if (capContactModel.getContactType() == "Facility") {
                     var fvContactAddress = demogetLatestContactAddress(capContactModel, "Mailing");
 
-                    gs2.common.debugObject(fvContactAddress)
+                    //gs2.common.debugObject(fvContactAddress)
 
                     var sSteetNum = gs2.common.isNull(fvContactAddress.getHouseNumberStart() + "", "") + "";
                     var sPreDirection = gs2.common.isNull(fvContactAddress.getStreetDirection() + "", "") + "";
@@ -583,6 +583,7 @@ function democreateAddressUsingFacilityContact() {
                     propAddr.StreetSuffix = sPostDirection + "";
                     propAddr.StreetPrefix = sPreDirection + "";
                     propAddr.StreetType = sSteetType + "";
+                    break;
                 }
             }
         }
