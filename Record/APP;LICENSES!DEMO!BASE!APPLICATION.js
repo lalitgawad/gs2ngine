@@ -322,7 +322,7 @@ function APP_OBJ(identity, caller) {
             
             //var pocItemsArr = this.getPOCItems();
             //addASITable("DIFICIENCY LISTING", pocItemsArr, pocCapId);
-            copyASITable(capId, pocCapId, "DIFICIENCY LISTING");
+            copyDiffASITable(capId, pocCapId, "DIFICIENCY LISTING");
 
             gs2.wf.deActivateWfTask(capId, "Supervisory Review");
             gs2.wf.deActivateWfTask(capId, "Application Issuance");
@@ -420,7 +420,7 @@ function APP_OBJ(identity, caller) {
                             if(CInfo[i] == "CHECKED")
                             {
                                 vRow["Observiation / Citation #"] = new asiTableValObj("Observiation / Citation #",vGuideSheet.text+"", "Y");
-                                vRow["Comments"] = new asiTableValObj("Comments",""+i, "Y");
+                                vRow["Comments"] = new asiTableValObj("Comments",""+i, "N");
                                 vRow["Plan of Correction"] = new asiTableValObj("Plan of Correction","", "N");
                                 vArr.push(vRow);
                             }
@@ -626,7 +626,7 @@ function setLicExpirationDate(itemCap) {
     return true;
 
 }
-function copyASITable(pFromCapId, pToCapId, tableName) {
+function copyDiffASITable(pFromCapId, pToCapId, tableName) {
     var itemCap = pFromCapId;
 
     var gm = aa.appSpecificTableScript.getAppSpecificTableGroupModel(itemCap).getOutput();
@@ -667,6 +667,9 @@ function copyASITable(pFromCapId, pToCapId, tableName) {
                 var readOnly = 'N';
                 if (readOnlyi.hasNext()) {
                     readOnly = readOnlyi.next();
+                }
+                if(tcol.getColumnName() == "Comments") {
+                    readOnly = 'Y';    
                 }
 
                 var fieldInfo = new asiTableValObj(tcol.getColumnName(), tval ? tval : "", readOnly);
