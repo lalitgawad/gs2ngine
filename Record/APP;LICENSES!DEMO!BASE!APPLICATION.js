@@ -73,7 +73,7 @@ function APP_OBJ(identity, caller) {
         }
     }
 
-	/**
+    /**
      * Initialize
      */
     this.Init = function () {
@@ -85,7 +85,7 @@ function APP_OBJ(identity, caller) {
         logDebug("INIT BASE");
     }
 
-	//Initialize
+    //Initialize
     this.Init();
 
     /**
@@ -120,7 +120,7 @@ function APP_OBJ(identity, caller) {
     /**
      * IFADelegator to call local function(s) for invoice Fee after
      */
-    this.IFADelegator = function (){
+    this.IFADelegator = function () {
 
     }
 
@@ -133,23 +133,21 @@ function APP_OBJ(identity, caller) {
     /**
      * Document upload after Delegator to call local function(s) for record specific before logic
      */
-    this.DuaDelegator = function() {
-        if(doesStatusExistInTaskHistory("Application Review", "Application Approved - Inspection Needed"))
-        {
+    this.DuaDelegator = function () {
+        if (doesStatusExistInTaskHistory("Application Review", "Application Approved - Inspection Needed")) {
             gs2.common.closeWfTask(capId, "Inspection", "Additional Information Received", "Additional Information Received", "");
             gs2.wf.activateTask(capId, "Inspection");
             aa.workflow.adjustTask(capId, "Inspection", "Y", "N", null, null);
             aa.workflow.adjustTask(capId, "Supervisory Review", "N", "N", null, null);
         }
-        else if(doesStatusExistInTaskHistory("Application Review", "Additional Information Required"))
-        {
+        else if (doesStatusExistInTaskHistory("Application Review", "Additional Information Required")) {
             gs2.common.closeWfTask(capId, "Application Review", "Additional Information Received", "Additional Information Received", "");
             gs2.wf.activateTask(capId, "Application Review");
             aa.workflow.adjustTask(capId, "Application Review", "Y", "N", null, null);
             aa.workflow.adjustTask(capId, "Supervisory Review", "N", "N", null, null);
             aa.workflow.adjustTask(capId, "Inspection", "N", "N", null, null);
         }
-        editCapConditionStatusX("Addtional Information Required","Additional Information Required","Condition Met","Not Applied")
+        editCapConditionStatusX("Addtional Information Required", "Additional Information Required", "Condition Met", "Not Applied")
         /*var vDocumentModelArray = aa.env.getValue("DocumentModelList");
         if (vDocumentModelArray.size() > 0) {
             for (var index = 0; index < vDocumentModelArray.size(); index++) {
@@ -161,8 +159,7 @@ function APP_OBJ(identity, caller) {
         }*/
     }
 
-    this.GUADelegator = function()
-    {
+    this.GUADelegator = function () {
 
     }
     /**
@@ -191,20 +188,18 @@ function APP_OBJ(identity, caller) {
      * CTRCA Delegator to call local function(s) for record specific after logic
      */
     this.CtrcaDelegator = function () {
-        if(balanceDue > 0)
-        {
+        if (balanceDue > 0) {
             gs2.common.closeWfTask(capId, "Application Intake", "Payment Complete", "Payment Complete", "");
             gs2.common.closeWfTask(capId, "Application Intake", "Intake Complete", "Intake Complete", "");
         }
         addApplicantToCap4ACA();
-		demoSendApplicationSubmission();
+        demoSendApplicationSubmission();
     }
 
     this.ISHBDelegator = function () {
 
     }
-    this.ISADelegator = function()
-    {
+    this.ISADelegator = function () {
         gs2.common.closeWfTask(capId, "Inspection", "Inspection Scheduled", "Compliance Inspection Scheduled", "");
         aa.workflow.adjustTask(capId, "Inspection", "Y", "N", null, null);
         aa.workflow.adjustTask(capId, "Supervisory Review", "N", "N", null, null);
@@ -223,21 +218,19 @@ function APP_OBJ(identity, caller) {
 
     }
     this.ISHADelegator = function () {
-		demoSendInspectionScheduled();
+        demoSendInspectionScheduled();
     }
     this.IRSADelegator = function () {
-        if(inspResult == "Compliant - Finalized")
-        {
-            gs2.common.closeWfTask(capId, "Inspection", "Pending Inspection Review", inspComment , "");
+        if (inspResult == "Compliant - Finalized") {
+            gs2.common.closeWfTask(capId, "Inspection", "Pending Inspection Review", inspComment, "");
             aa.workflow.adjustTask(capId, "Inspection", "Y", "N", null, null);
             aa.workflow.adjustTask(capId, "Supervisory Review", "N", "N", null, null);
             //gs2.common.closeWfTask(capId, "Inspection", "Compliant", inspComment , "");
             //gs2.rec.updateAppStatus("Compliant - Finalized","");
 
         }
-        else if(inspResult == "Non - Compliant")
-        {
-            gs2.common.closeWfTask(capId, "Inspection", "Pending Inspection Review", inspComment , "");
+        else if (inspResult == "Non - Compliant") {
+            gs2.common.closeWfTask(capId, "Inspection", "Pending Inspection Review", inspComment, "");
             aa.workflow.adjustTask(capId, "Inspection", "Y", "N", null, null);
             aa.workflow.adjustTask(capId, "Supervisory Review", "N", "N", null, null);
             //gs2.common.closeWfTask(capId, "Inspection", "Non - Compliant", inspComment , "");
@@ -246,21 +239,18 @@ function APP_OBJ(identity, caller) {
             addASITable("DIFICIENCY LISTING", pocItemsArr);
         }
     }
-    this.IRMADelegator = function ()
-    {
-        if(inspResult == "Compliant - Finalized")
-        {
-            gs2.common.closeWfTask(capId, "Inspection", "Pending Inspection Review", inspComment , "");
+    this.IRMADelegator = function () {
+        if (inspResult == "Compliant - Finalized") {
+            gs2.common.closeWfTask(capId, "Inspection", "Pending Inspection Review", inspComment, "");
             aa.workflow.adjustTask(capId, "Inspection", "Y", "N", null, null);
             aa.workflow.adjustTask(capId, "Supervisory Review", "N", "N", null, null);
             //gs2.common.closeWfTask(capId, "Inspection", "Compliant", inspComment , "");
             //gs2.rec.updateAppStatus("Compliant - Finalized","");
         }
-        else if(inspResult == "Non - Compliant")
-        {
-            gs2.common.closeWfTask(capId, "Inspection", "Pending Inspection Review", inspComment , "");
+        else if (inspResult == "Non - Compliant") {
+            gs2.common.closeWfTask(capId, "Inspection", "Pending Inspection Review", inspComment, "");
             aa.workflow.adjustTask(capId, "Inspection", "Y", "N", null, null);
-            aa.workflow.adjustTask(capId, "Supervisory Review", "N", "N", null, null);  
+            aa.workflow.adjustTask(capId, "Supervisory Review", "N", "N", null, null);
             //gs2.common.closeWfTask(capId, "Inspection", "Non - Compliant", inspComment , "");
             //gs2.rec.updateAppStatus("Non - Compliant","");
             var pocItemsArr = this.getPOCItems();
@@ -268,20 +258,19 @@ function APP_OBJ(identity, caller) {
         }
     }
 
-    this.AsiubDelegator = function (){
+    this.AsiubDelegator = function () {
 
     }
     /**
      * Workflow task update before Delegator to call local function(s) for record specific before logic
      */
-    this.WtubDelegator = function ()
-    {
+    this.WtubDelegator = function () {
 
     }
 
-   /**
-     * ASA Async Delegator to call local function(s) for record specific after logic
-     */
+    /**
+      * ASA Async Delegator to call local function(s) for record specific after logic
+      */
     this.AsaAsyncDelegator = function () {
         //gs2.common.closeWfTask(capId, "Application Intake", "Intake Complete", "Intake Complete", "");
     }
@@ -296,29 +285,26 @@ function APP_OBJ(identity, caller) {
     /**
      * Workflow task update after Delegator to call local function(s) for record specific after logic
      */
-    this.WtuaDelegator = function()
-    {
-        if(wfTask == "Application Review" && wfStatus == "Application Approved - Inspection Needed")
-        {
+    this.WtuaDelegator = function () {
+        if (wfTask == "Application Review" && wfStatus == "Application Approved - Inspection Needed") {
             gs2.insp.createPendingInspection("INSP_CI", "Compliance Inspection");
             //gs2.common.closeWfTask(capId, "Inspection", "Inspection Scheduled", "Compliance Inspection Scheduled", "");
             //updateTask("Inspection","Inspection Scheduled", "Compliance Inspection Scheduled", "");
             //moveWFTask("Inspection","Inspection Scheduled", "Compliance Inspection Scheduled", "");
         }
-        else if(wfTask == "Supervisory Review" && wfStatus == "Deficiency Report Issued")
-        {
-            var pocCapId = gs2.rec.createChild("Licenses","Plan of Correction","NA","NA");
-            gs2.rec.updateAppStatus("Awaiting Provider Response","", pocCapId);
+        else if (wfTask == "Supervisory Review" && wfStatus == "Deficiency Report Issued") {
+            var pocCapId = gs2.rec.createChild("Licenses", "Plan of Correction", "NA", "NA");
+            gs2.rec.updateAppStatus("Awaiting Provider Response", "", pocCapId);
             gs2.rec.copyAppName(capId, pocCapId);
             copyAddresses(capId, pocCapId);
-            
+
             gs2.user.linkPublicUserToApplication();
             var capModelScript = aa.cap.getCap(capId).getOutput();
             var capModel = capModelScript.getCapModel();
             var user = capModel.getCreatedBy();
-            editCreatedBy(user,pocCapId);
+            editCreatedBy(user, pocCapId);
             sendAppToACA4Edit(pocCapId);
-            
+
             //var pocItemsArr = this.getPOCItems();
             //addASITable("DIFICIENCY LISTING", pocItemsArr, pocCapId);
             copyDiffASITable(capId, pocCapId, "DIFICIENCY LISTING");
@@ -332,39 +318,34 @@ function APP_OBJ(identity, caller) {
 
             demoSendPocNotice(pocCapId);
         }
-        else if(wfTask == "Application Issuance" && (wfStatus == "Application Approved - Issue Permit" || wfStatus == "Application Approved - Issue License"))
-        {
-            var licCapId = gs2.rec.createParent(appTypeArray[0],appTypeArray[1],appTypeArray[2],"License");
-            gs2.rec.updateAppStatus("Active","", licCapId);
+        else if (wfTask == "Application Issuance" && (wfStatus == "Application Approved - Issue Permit" || wfStatus == "Application Approved - Issue License")) {
+            var licCapId = gs2.rec.createParent(appTypeArray[0], appTypeArray[1], appTypeArray[2], "License");
+            gs2.rec.updateAppStatus("Active", "", licCapId);
             copyASIFields(capId, licCapId);
             updateExpirationDateFromToday(licCapId, new Date());
             gs2.rec.copyAppName(capId, licCapId);
             copyAddresses(capId, licCapId);
             gs2.user.linkPublicUserToApplication();
 
-			demoSendLicenseIssuance(licCapId);
+            demoSendLicenseIssuance(licCapId);
         }
-        else if(wfTask == "Application Review" && wfStatus == "Additional Information Required")
-        {
+        else if (wfTask == "Application Review" && wfStatus == "Additional Information Required") {
             gs2.wf.deActivateWfTask(capId, "Application Review");
             addSTDConditionX("Addtional Information Required", "Additional Information Required", capId);
-			var comments = "Send missing required information"; 
-			demoSendAdditinalInfoRequiredForApp(comments);
+            var comments = "Send missing required information";
+            demoSendAdditinalInfoRequiredForApp(comments);
         }
-        else if(wfTask == "Inspection" && wfStatus == "Request Additional Information")
-        {
+        else if (wfTask == "Inspection" && wfStatus == "Request Additional Information") {
             gs2.wf.deActivateWfTask(capId, "Inspection");
             addSTDConditionX("Addtional Information Required", "Additional Information Required", capId);
-			var comments = "Send missing required information"; 
-			demoSendAdditinalInfoRequiredForApp(comments);
+            var comments = "Send missing required information";
+            demoSendAdditinalInfoRequiredForApp(comments);
         }
-        else if(wfTask == "Inspection" && wfStatus == "Compliant")
-        {
-            gs2.rec.updateAppStatus("Compliant - Finalized","");
+        else if (wfTask == "Inspection" && wfStatus == "Compliant") {
+            gs2.rec.updateAppStatus("Compliant - Finalized", "");
         }
-        else if(wfTask == "Inspection" && wfStatus == "Non - Compliant")
-        {
-            gs2.rec.updateAppStatus("Non - Compliant","");
+        else if (wfTask == "Inspection" && wfStatus == "Non - Compliant") {
+            gs2.rec.updateAppStatus("Non - Compliant", "");
         }
 
     }
@@ -382,7 +363,7 @@ function APP_OBJ(identity, caller) {
     }
 
 
-	this.pageflowDelegator = function (pfName) {
+    this.pageflowDelegator = function (pfName) {
         var hidepage = true;
 
         switch (pfName) {
@@ -397,32 +378,36 @@ function APP_OBJ(identity, caller) {
             aa.env.setValue("ReturnData", "{'PageFlow': {'HidePage' : 'Y'}}");
         }
     }
-    this.getPOCItems = function ()
-    {
+    this.getPOCItems = function () {
         var vArr = new Array();
         var inspResultObj = aa.inspection.getInspections(capId);
         if (inspResultObj.getSuccess()) {
             var inspList = inspResultObj.getOutput();
             for (xx in inspList) {
-                if (inspList[xx].getInspectionStatus() == "Non - Compliant" && inspList[xx].getInspectionType() == "Compliance Inspection" ) {
+                if (inspList[xx].getInspectionStatus() == "Non - Compliant" && inspList[xx].getInspectionType() == "Compliance Inspection") {
                     var inspId = inspList[xx].getIdNumber();
                     var vGuideSheets = getGuideSheetObjects(inspId);
-                    for(var j in vGuideSheets)
-                    {
+                    for (var j in vGuideSheets) {
                         var vGuideSheet = vGuideSheets[j];
+                        var sStandardChoice = vGuideSheet.comment;
                         var CInfo = new Array();
                         vGuideSheet.loadInfo();
                         CInfo = vGuideSheet.info;
-                        for(var i in CInfo)
-                        {
+                        for (var i in CInfo) {
                             var vRow = new Array();
-                            if(CInfo[i] == "CHECKED")
-                            {
-                                vRow["Observiation / Citation #"] = new asiTableValObj("Observiation / Citation #",vGuideSheet.text+"", "Y");
-                                vRow["Comments"] = new asiTableValObj("Comments",""+i, "N");
-                                vRow["Plan of Correction"] = new asiTableValObj("Plan of Correction","", "N");
+                            if (CInfo[i] == "CHECKED") {
+                                vRow["Observiation / Citation #"] = new asiTableValObj("Observiation / Citation #", vGuideSheet.text + "", "Y");
+                                vRow["Comments"] = new asiTableValObj("Comments", "" + i, "N");
+                                vRow["Plan of Correction"] = new asiTableValObj("Plan of Correction", "", "N");
                                 vArr.push(vRow);
                             }
+                        }
+                        if(sStandardChoice) {
+                            var vRow = new Array();
+                            vRow["Observiation / Citation #"] = new asiTableValObj("Observiation / Citation #", vGuideSheet.text + "", "Y");
+                            vRow["Comments"] = new asiTableValObj("Comments", sStandardChoice, "N");
+                            vRow["Plan of Correction"] = new asiTableValObj("Plan of Correction", "", "N");
+                            vArr.push(vRow);
                         }
                     }
                 }
@@ -667,8 +652,8 @@ function copyDiffASITable(pFromCapId, pToCapId, tableName) {
                 if (readOnlyi.hasNext()) {
                     readOnly = readOnlyi.next();
                 }
-                if(tcol.getColumnName() == "Comments") {
-                    readOnly = 'Y';    
+                if (tcol.getColumnName() == "Comments") {
+                    readOnly = 'Y';
                 }
 
                 var fieldInfo = new asiTableValObj(tcol.getColumnName(), tval ? tval : "", readOnly);
