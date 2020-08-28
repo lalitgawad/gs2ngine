@@ -326,6 +326,10 @@ function APP_OBJ(identity, caller) {
             gs2.rec.copyAppName(capId, licCapId);
             copyAddresses(capId, licCapId);
             gs2.user.linkPublicUserToApplication();
+            var capModelScript = aa.cap.getCap(capId).getOutput();
+            var capModel = capModelScript.getCapModel();
+            var user = capModel.getCreatedBy();
+            editCreatedBy(user, licCapId);
 
             demoSendLicenseIssuance(licCapId);
         }

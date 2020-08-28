@@ -262,18 +262,16 @@ function demoSendLicenseIssuance() {
 
 function demoSendInspectionScheduled() {
     try {
-
         var inspEmail = "";
-        var inspTyp = "";
-        var inspStatus = "";
-        var inspName = "";
-        var inspComment = "";
-        var inspSchedDate = "";
 
         var mInspId = "" + aa.env.getValue("inspId");
         logDebug("mInspId---> " + mInspId)
         var inspObject = aa.inspection.getInspection(capId, mInspId).getOutput();
         if (inspObject) {
+			var inspTyp = "";
+			var inspStatus = "";
+			var inspName = "";
+			var inspComment = "";
 
             inspTyp = inspObject.getInspectionType();
             var thisArr = new Array();
@@ -287,7 +285,6 @@ function demoSendInspectionScheduled() {
             inspSchedDate = inspObject.getScheduledDate().getMonth() + "/" + inspObject.getScheduledDate().getDayOfMonth() + "/" + inspObject.getScheduledDate().getYear()
             logDebug("inspTyp:  " + inspTyp + "  inspStatus: " + inspStatus + " inspSchedDate: " + inspSchedDate);
         }
-
 
         var notificationType = "INSPECTION_SCHEDULED";
         var templateName = "INSPECTION_SCHEDULED";
