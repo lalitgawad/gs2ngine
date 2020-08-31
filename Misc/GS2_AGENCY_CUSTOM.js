@@ -229,6 +229,9 @@
             itemCap = capId;
             if (arguments.length == 1) itemCap = arguments[0]; // use cap ID specified in args
 
+            var applicationType = "application";
+            if (arguments.length == 2) applicationType = "renewal"; 
+
             var capScriptModel = aa.cap.getCap(itemCap);
             if (capScriptModel.getSuccess()) {
                 capType = capScriptModel.getOutput().getCapType();
@@ -245,6 +248,9 @@
             addParameter(emailParameters, "$$RecordType$$", alias);
             addParameter(emailParameters, "$$acaRecordUrl$$", acaRecordUrl);
             addParameter(emailParameters, "$$signage$$", signage);
+
+
+            addParameter(emailParameters, "$$application$$", applicationType);
 
             var repDocArray = getCertificateReport();
             if(repDocArray.length > 0) {

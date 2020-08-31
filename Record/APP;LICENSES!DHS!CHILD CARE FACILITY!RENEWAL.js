@@ -279,7 +279,41 @@ function APP_OBJ(identity, caller) {
      * Workflow task update after Delegator to call local function(s) for record specific after logic
      */
     this.WtuaDelegator = function () {
+        //if (wfTask == "Application Issuance" && (wfStatus == "Application Approved - Issue Permit" || wfStatus == "Application Approved - Issue License")) {
 
+            /*
+            var parentcapId = gs2.rec.getParentIdForRenewal(capId);
+            var expirationDate = new Date();
+            b1ExpResult = aa.expiration.getLicensesByCapID(parentcapId);
+            var b1Exp = b1ExpResult.getOutput();
+            if(b1Exp)
+            {
+                var expDate=b1Exp.getExpDate();
+                if(expDate)
+                {
+                    expirationDate = expDate;
+                }
+            }
+            var fileDate = new Date(dateAdd(expirationDate, 1));
+            logDebug(fileDate);
+            logDebug(expirationDate);
+
+            var licCapId = gs2.rec.createParent(appTypeArray[0], appTypeArray[1], appTypeArray[2], "License");
+            gs2.rec.updateAppStatus("Active", "", licCapId);
+            copyASIFields(capId, licCapId);
+            gs2.rec.editFileDate(licCapId, fileDate);
+            updateExpirationDateFromToday(licCapId, expirationDate);
+            gs2.rec.copyAppName(capId, licCapId);
+            copyAddresses(capId, licCapId);
+            gs2.user.linkPublicUserToApplication();
+            var capModelScript = aa.cap.getCap(capId).getOutput();
+            var capModel = capModelScript.getCapModel();
+            var user = capModel.getCreatedBy();
+            editCreatedBy(user, licCapId);
+
+            demoSendLicenseIssuance(licCapId, "Due To Renewal");
+            */
+        //}
     }
 
     /**
