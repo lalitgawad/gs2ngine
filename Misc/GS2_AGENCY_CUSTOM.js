@@ -751,11 +751,11 @@
     }
     function getCitationReport() {
         var reports = new Array();
-        if(false) {
+        if(true) {
             var rParams = aa.util.newHashMap();
-            rParams.put("RECORD_ID", capIDString);
-            rParams.put("Contact Type", "Facility");
-            var rFile = gs2.util.generateReport(capId, "License Form", "Licenses", rParams);
+
+            rParams.put("altId", capIDString);
+            var rFile = gs2.util.generateReport(capId, "Plan of Correction", "Licenses", rParams);
             logDebug(rFile);
             
             if (rFile) {
