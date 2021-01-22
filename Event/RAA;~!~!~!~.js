@@ -1,1 +1,0 @@
-logDebug("RAA event fired!");
