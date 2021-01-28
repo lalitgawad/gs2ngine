@@ -192,4 +192,74 @@ var params = aa.util.newHashtable();
 getRecordParams4Notification(params);
 getContactParams4Notification(params,"Applicant");
 
-sendNotification(null,null,null,"1HCPAYMENT",params,null);
+//START GCOM Implementation - SOW P4:I1
+if(capHasFeeItem("SE_PERMITFEE") && !isDuplicateCommunication(capId.getCustomID()+"","1HCPERFEEPAYMENT"))
+    sendNotification(null,null,null,"1HCPERFEEPAYMENT",params,null);
+else if(capHasFeeItem("SPECIALEVENT") && !isDuplicateCommunication(capId.getCustomID()+"","1HCPAYMENT"))
+    sendNotification(null,null,null,"1HCPAYMENT",params,null);
+
+
+function capHasFeeItem(fsched){
+    feeItemsResult = aa.finance.getFeeItemByCapID(capId);
+    if (feeItemsResult.getSuccess()) {
+        feeItems = feeItemsResult.getOutput();
+        for( x in feeItems)
+        {
+            //feeItems[x].getFeeDescription()
+            if (feeItems[x].getFeeSchudle() == fsched)
+                return true;
+        }
+    }
+    return false;
+}
+/**
+ * Returns boolean if the notification was already sent for a record id
+ * @param altID, Notificaiton-Name
+ * @returns boolean
+ */
+function isDuplicateCommunication(altId,trigger_event)
+{
+    var vError = '';
+    var conn = null;
+    var sStmt = null;
+    var rSet = null;
+    var msg = '';
+
+    var sql = "SET NOCOUNT ON;SELECT * FROM G7MESSAGE_ENTITY WHERE ENTITY_ID='"+altId+"' AND CM_ID IN (SELECT RES_ID FROM G7CM_MESSAGE WHERE TRIGGER_EVENT = '"+trigger_event+"');";
+    try {
+        var initialContext = aa.proxyInvoker.newInstance("javax.naming.InitialContext", null).getOutput();
+        var ds = initialContext.lookup("java:/AA");
+        conn = ds.getConnection();
+        sStmt = conn.prepareStatement(sql);
+        rSet = sStmt.executeQuery();
+        while(rSet.next()) {
+            conn.close();
+            closeDBQueryObject(rSet, sStmt, conn);
+            return true;
+        }
+
+    } catch (vError) {
+        logDebug("Runtime error occurred: " + vError);
+    }
+    closeDBQueryObject(rSet, sStmt, conn);
+    return false;
+}
+function closeDBQueryObject(sStmt, conn) {
+    try {
+        if (sStmt) {
+            sStmt.close();
+            sStmt = null;
+        }
+    } catch (vError) {
+        aa.print("Failed to close the database prepare statement object." + vError);
+    }
+    try {
+        if (conn) {
+            conn.close();
+            conn = null;
+        }
+    } catch (vError) {
+        aa.print("Failed to close the database connection." + vError);
+    }
+}
+//END GCOM Implementation - SOW P4:I1
