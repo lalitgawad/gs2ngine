@@ -191,6 +191,7 @@ else
 var params = aa.util.newHashtable();
 getRecordParams4Notification(params);
 getContactParams4Notification(params,"Applicant");
+addParameter(params, "$$feePaid$$", "$" + PaymentTotalPaidAmount  );
 
 //START GCOM Implementation - SOW P4:I1
 if(capHasFeeItem("SE_PERMITFEE") && !isDuplicateCommunication(capId.getCustomID()+"","1HCPERFEEPAYMENT"))
@@ -228,7 +229,7 @@ function isDuplicateCommunication(altId,trigger_event)
     var sql = "SET NOCOUNT ON;SELECT * FROM G7MESSAGE_ENTITY WHERE ENTITY_ID='"+altId+"' AND CM_ID IN (SELECT RES_ID FROM G7CM_MESSAGE WHERE TRIGGER_EVENT = '"+trigger_event+"');";
     try {
         var initialContext = aa.proxyInvoker.newInstance("javax.naming.InitialContext", null).getOutput();
-        var ds = initialContext.lookup("java:/AA");
+        var ds = initialContext.lookup("java:/HOCOTEC");
         conn = ds.getConnection();
         sStmt = conn.prepareStatement(sql);
         rSet = sStmt.executeQuery();
