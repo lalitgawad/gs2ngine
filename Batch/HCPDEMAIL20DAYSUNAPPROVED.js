@@ -33,8 +33,11 @@ if(secapname!= "")
 }
 function email(pToEmail, pFromEmail, pSubject, pText)
 {
+    aa.print("From: "+ pFromEmail);
+    aa.print("To: "+ pToEmail);
+    aa.print("Subject: "+ pSubject);
+    aa.print("Content: "+ pText);
     aa.sendMail(pFromEmail, pToEmail, "", pSubject, pText);
-    aa.print(pSubject+""+ pText);
     return true;
 }
 
